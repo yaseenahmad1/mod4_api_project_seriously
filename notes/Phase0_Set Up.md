@@ -1,9 +1,9 @@
-# PHASE 0 ( THE SET UP ) ------------------------------------------------------------------------------------------------------------------
+# PHASE 0 ( THE SET UP ) ------------------------------------------------------------
 
 - We are going to set up the authenticate me project skeleton for the MOD 4 project
 - Keep in mind this is only the backend half of the authenticate me code!
 
-# SETUP YOUR REPOSITORY -------------------------------------------------------------------------------------------------------------------
+# SETUP YOUR REPOSITORY -------------------------------------------------------------
 
 Structure of the repo 
 
@@ -114,7 +114,7 @@ then run :
 
 npm install -D sqlite3 dotenv-cli nodemon 
 
-# CONFIGURATION ---------------------------------------------------------------------------------------------------------------------------
+# CONFIGURATION ---------------------------------------------------------------------
 
 Let's take a look at configuration. So in the backend folder, by the way, there are a lot of files we are going to be creating and a lot of code we are going to be adding into this code base. So check to make sure that where you are putting this stuff is in the correct spot. We put things in the wrong place, things are going to break. So one thing we should be doing is frequently testing the code base whenever possible just to make sure that all of those steps that we are taking are working in sync. 
 
@@ -274,7 +274,7 @@ This `production object` is one that we have not seen before so this `production
 
 The `schema` environment variable we will leave this alone for now. We will dive into what this schema is doing for us and its purpose once we start creating some tables in our database. So we will get there soon! 
 
-# CREATING A NEW FILE IN OUR BACKEND FOLDER CALLED `psql-set-script.js` -------------------------------------------------------------------
+# CREATING A NEW FILE IN OUR BACKEND FOLDER CALLED `psql-set-script.js` -------------
 
 ```plaintext
 .
@@ -327,7 +327,7 @@ Now that we have all of this `Sequelize` stuff setup we have this command here (
 
 So we see have a `SequelizeMeta` table there as expected. So Sequelize is set to go! 
 
-# EXPRESS SETUP ---------------------------------------------------------------------------------------------------------------------------
+# EXPRESS SETUP ---------------------------------------------------------------------
 
 So now on to setting up `Express`! So here we are going to want to create an `app.js` file in the backend directory: 
 
@@ -471,7 +471,7 @@ app.use(
 );
 ```
 
-# ROUTES ----------------------------------------------------------------------------------------------------------------------------------
+# ROUTES ----------------------------------------------------------------------------
 
 So, next we are going to create a `routes` folder. So all of those endpoints, we don't want to be putting in our `app.js` so we are going to be creating a number of `routers`. And in that folder, we are going to create an `index.js` file. This file is going to be an initial hub for all of our requests. We will be putting in some nested folders and files here for the rest of our actual enpoints but we will use this file for a little bit of testing! 
 
@@ -567,7 +567,7 @@ app.use(routes);
 module.exports = app; 
 ```
 
-# CREATE THE SERVER -----------------------------------------------------------------------------------------------------------------------
+# CREATE THE SERVER -----------------------------------------------------------------
 
 And with that set up, we are going to create that `script file`! So we are going to create a new folder called `bin` and in that folder, a new file called `www`. This is just a `script file`!
 
@@ -631,7 +631,7 @@ db.sequelize
   }); 
 ```
 
-# TEST THE SERVER -------------------------------------------------------------------------------------------------------------------------
+# TEST THE SERVER -------------------------------------------------------------------
 
 In your `package.json`, we are going to need to create some scripts so that we can boot up our server and test to make sure that all of this work is actually functioning! 
 
@@ -689,7 +689,7 @@ The browser is just looking for a favicon and not finding one but we will eventu
 
 The 304 is the request we sent from the browser.  
 
-# CSRF TOKEN ACCESS FOR DEVELOPMENT -------------------------------------------------------------------------------------------------------
+# CSRF TOKEN ACCESS FOR DEVELOPMENT -------------------------------------------------
 
 Now we are going to set up another endpoint here. This is actually going to be the endpoint that we use somewhat regularly to make sure that we have an updated csrf token for the requests that we are making. So, let's hop into the routes/index.js and we can remove that prior test route but let's just comment it out for now : 
 
@@ -721,7 +721,7 @@ so GET localhost:8000/api/csrf/restore
 
 and we get ourselves back that 'XSRF-TOKEN'! 
 
-# END OF PHASE 0 ( THE SET UP ) -----------------------------------------------------------------------------------------------------------
+# END OF PHASE 0 ( THE SET UP ) -----------------------------------------------------
 
 
 
