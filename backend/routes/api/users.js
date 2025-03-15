@@ -9,6 +9,12 @@ const { User } = require('../../db/models');
 const router = express.Router();
 
 const validateSignup = [
+    check('firstName')
+      .exists({ checkFalsy: true })
+      .withMessage('Please provide a first name.'),
+    check('lastName')
+      .exists({ checkFalsy: true })
+      .withMessage('Please provide a last name.'),
     check('email')
       .exists({ checkFalsy: true })
       .isEmail()
@@ -41,8 +47,8 @@ router.post(
         id: user.id,
         email: user.email,
         username: user.username,
-        firstname: firstName, 
-        lastname: lastName
+        firstname: user.firstName, 
+        lastname: user.lastName
       };
   
       await setTokenCookie(res, safeUser);

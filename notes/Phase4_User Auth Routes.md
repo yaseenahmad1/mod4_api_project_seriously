@@ -434,9 +434,179 @@ const router = express.Router();
 module.exports = router; 
 ```
 
+Next, we will add the `POST` `/api/users` route to the router using an asynchronous route handler. In the route handler, deconstruct the request body, then use `bycrypt's` `hashSync` function to hash the user's provided password to be saved as the user's `hashedPassword` in the database. Create a new `User` in the database with the `username` and `email` from the request body and the `hashedPassword` generated from `bcryptjs`. 
 
+Then, use `setTokenCookie` to log in the user by creating a JWT cookie with the user's non-sensitive information as its payload. 
 
+Finally, send a JSON response containing the user's non-sensitive information. Here is what the format of the JSON response should look like if the user is successfully created in the database : 
 
+```js
+{
+user: {
+    id, 
+    email, 
+    username
+}
+}
+```
 
+So this is our `signup` route : 
 
+backend/routes/api/users.js
+```js
+const express = require('express');
+const bcrypt = require('bcryptjs'); // importing bcrypt here
+
+const { setTokenCookie, requireAuth } = require('../../utils/auth'); 
+const { User } = require('../../db/models');                         
+
+const router = express.Router(); 
+
+router.post(
+    '/',
+    async (req, res) => {
+        const { email, password, username } = req.body; // So we are taking in an email, password, and username in our request body
+        const hashedPassword = bcrypt.hashSync(password); // we are going to throw that plain text password into a brcpt hash method
+        const user = await User.create({ email, username, hashedPassword }); // then passing the email, the username, and hashedPassword 
+        // into our create method. Signing up and creating that user : 
+
+        const safeUser = { 
+            id: user.id,
+            email: user.email,
+            username: user.username
+        }; // only passing in the id, email, username, certainly not our password. 
+
+    await setTokenCookie(res, safeUser); // and we are going to pass that user object into our setTokenCookie function to generate a JWT and sign this user in. 
+
+    return res.json({   // and then just sending back that user data in our response
+        user: safeUser
+    });
+
+    }
+);
+
+module.exports = router; 
+```
+
+--------------------------------------------------------------------------------------------------------
+
+Let's go ahead and test the SignUp Route!
+
+--------------------------------------------------------------------------------------------------------
+
+Let's go ahead and restore our csrf token : 
+
+>> localhost:8000/api/csrf/restore
+
+You are pretty much going to need to do that anytime your server restarts so keep that in mind. 
+
+And here is our sign-up `fetch` : 
+
+```js
+fetch('api/users', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+        "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+    },
+    body: JSON.stringify({
+        email: 'spidey@spider.man',
+        username: 'Spidey',
+        password: 'password'
+    })
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+We will go ahead and test our `unique` constraints on our database but we will be doing a lot more testing in the next phase. 
+
+So let's paste in our `fetch` in our console and grab our `csrf-token` and hit send
+
+And we can see we are able to sign up a `user` and we should have a `new token` in our `Applications`
+
+So let's change our `username` and use the same email address : 
+
+```js
+fetch('api/users', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+        "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+    },
+    body: JSON.stringify({
+        email: 'spidey@spider.man',
+        username: '1Spidey',            // changed our username
+        password: 'password'
+    })
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+Now when we hit enter we should see that we are getting a validation error message, saying `email must be unique`
+
+If we try this again with a `unique email address` and an already used `username` : 
+
+```js
+fetch('api/users', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+        "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+    },
+    body: JSON.stringify({
+        email: '1spidey@spider.man',   // unique email address 
+        username: 'Spidey',            // already used username
+        password: 'password'
+    })
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+We get a validation error that says `username must be unique` so perfect! So those validations are working well. Again, we will add some more server level validation with the next exercise but as far as our database constraints go that is sufficient for now. 
+
+With the sign up route set up, our last step here is to set up a `route` just to fetch the `logged in user's information`
+
+--------------------------------------------------------------------------------------------------------
+
+Get Session User API Route
+
+--------------------------------------------------------------------------------------------------------
+
+backend/routes/api/session.js
+```js
+// ...
+
+// router.delete 
+
+// Throwing this code below our logout route:
+// Restore session user 
+router.get(
+    '/',
+    (req, res) => {
+        const { user } = req; 
+        if (user) {
+            const safeUser = {
+                id: user.id,
+                email: user.email,
+                username: user.username
+            }; 
+        return res.json({
+            user: safeUser
+        });
+        } else return res.json({ user: null });
+    }
+);
+
+// ...
+```
+
+So what we are doing is checking to see if we have a `user` on our request object. So if we have passed through that `restore user global middleware` and found a user identified by the JWT and applied that user to our request object, we are going to check to make sure that we do have a user, and if we do, we will go ahead and send back just the `id`, `email`, and `username` of that user. If we do not, then we are just going to send back `null`. 
+
+So let's go ahead and test this out here. This is just going to be a `GET` request : 
+
+>> localhost:8000/api/session
+
+So we get back our `Spidey` information here and if we remove our `cookie` in `Applications` we should get back `null`. So perfect that is the desired outcome! 
+
+That will wrap up Phase 4! 
+
+# END OF PHASE 4 ( USER AUTH ROUTES )
+--------------------------------------------------------------------------------------------------------
 
