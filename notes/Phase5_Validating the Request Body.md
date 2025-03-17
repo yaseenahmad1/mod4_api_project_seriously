@@ -237,4 +237,326 @@ fetch('/api/session', {
 }).then(res => res.json()).then(data => console.log(data));
 ```
 
+So upon hitting enter (send) we get a `Bad Request Error` giving us that `Please provide a password` message so looks like the validation is working just fine. 
 
+Next, we are going to do much the same for our `Sign Up` route. 
+
+# VALIDATING SIGNUP REQUEST BODY 
+--------------------------------------------------------------------------------------------------------
+
+In the `backend/routes/api/users.js` file, let's go ahead and import the functions that we need : 
+
+backend/routes/api/user.js
+```js
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const { check } = require('express-validator');     // adding this import
+const { handleValidationErrors } = require('../../utils/validation'); // adding this import 
+const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { User } = require('../../db/models');
+
+
+const router = express.Router();
+
+// Now, we need the set of validations. Below is a list of validation middleware functions, above our sign up route. 
+
+const validateSignUp = [
+    check('email')          // so here we are checking we have an 
+        .exists({ checkFalsy: true })   // email property 
+        .isEmail()                      // that is in the email format 
+        .withMessage('Please provide a valid email.'),  
+    check('username')
+        .exists({ checkFalsy: true }) // check we have a username property 
+        .isLength({ min: 4 })         // that is at least 4 characters long 
+        .withMessage('Please provide a username with at least 4 characters.'),
+    check('username')
+        .not()                        // and we are going to check to make sure that username is NOT 
+        .isEmail()                    // an email address. 
+        .withMessage('Username cannot be an email.'),
+    check('password')
+        .exists({ checkFalsy: true }) // checking that we have a password
+        .isLength({ min: 6 })         // that is at least 6 characters long 
+        .withMessage('Password must be 6 characters or more.'),
+    handleValidationErrors            // then of course, passing in our handleValidationErrors so we can gather up any of the errors
+];                                    // that we generate here and pass them into our Error Handling Middleware 
+
+// Sign up
+router.post(
+    '/',
+    validateSignUp,                 // Then we take the name of that set of middleware and add it into our endpoint!
+    async (req, res) => {
+      const { email, password, username, firstName, lastName } = req.body;
+      const hashedPassword = bcrypt.hashSync(password);
+      const user = await User.create({ firstName, lastName, email, username, hashedPassword });
+  
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstname: user.firstName, 
+        lastname: user.lastName
+      };
+  
+      await setTokenCookie(res, safeUser);
+  
+      return res.json({
+        user: safeUser
+      });
+    }
+  );
+
+module.exports = router;
+```
+
+So that is all we need there as far as the code goes. 
+
+# TEST THE SIGN UP VALIDATION 
+--------------------------------------------------------------------------------------------------------
+
+Navigate to : 
+
+>> localhost:8000/api/csrf/restore
+
+To attain your `XSRF-TOKEN` and attach it to the following `fetch` request : 
+
+```js
+fetch('/api/users', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+        "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+    },
+    body: JSON.stringify({
+        email: 'firestar@spider.man',
+        username: 'Firestar',
+        password: ''
+    })
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+So things we need to test here. We are going to test to make sure we get back the proper error were : 
+
+- `email` field is an empty string
+- `email` field is not an email
+- `username` field is an empty string
+- `username` field is only 3 characters long
+- `username` field is an email
+- `password` field is only 5 characters long 
+
+So we will be testing each of these individually. 
+
+So currently testing with no password and upon hitting enter we get `Password must be 6 characters or more.`. So that looks good. 
+
+Now let's provide a password and let's test an empty email address : 
+```js
+fetch('/api/users', {
+    method: 'POST',
+    headers: {
+        "Content-Type": "application/json",
+        "XSRF-TOKEN": `<value of XSRF-TOKEN cookie>`
+    },
+    body: JSON.stringify({
+        email: '',
+        username: 'Firestar',
+        password: 'password'
+    })
+}).then(res => res.json()).then(data => console.log(data));
+```
+
+We get back `Please provide a valid email.` Excellent!
+
+And so essentially keep using the same fetch request and alter each one to check off that list and check to see if you get back the right error messages. (Refer to video if confused but seems pretty straight forward from here)
+
+# WRAPPING UP THE BACKEND 
+--------------------------------------------------------------------------------------------------------
+
+That wraps up the final phase! The final thing that you are going to need to do before hosting the application and deploying it on `Render` is adding a couple of properties to the `User` table so you will need to create a `NEW` migration to add the `firstName` and `lastName` columns to the `User` table : 
+
+```plaintext
+npx sequelize migration:generate --name add-firstname-lastname-to-users
+```
+
+```plaintext
+.
+|-- backend/
+  |-- bin/
+    |-- www
+  |-- config/
+    |-- database.js
+    |-- index.js 
+  |-- db/
+    |-- migrations/
+      |-- 20250304231336-create-user.js
+      |-- 20250306012649-add-firstname-lastname-to-users.js
+    |-- models/
+      |-- index.js
+      |-- user.js
+    |-- seeders/
+      |-- 20250304234124-demo-user.js
+  |-- node_modules/
+  |-- routes/
+    |-- index.js
+  |-- utils/
+    |-- auth.js
+    |-- validation.js
+  |-- .env
+  |-- .sequelizerc
+  |-- app.js
+  |-- package-lock.json
+  |-- package.json
+  |-- psql-setup-script.js
+|-- frontend/
+|-- images/
+|-- .gitignore
+|-- README.md 
+```
+
+When you do that, you are also going to want to keep in mind you are going to have to edit the `User` model, so you will need to add those columns to the model, add some validations as you feel are appropriate to those columns as well. 
+
+>> Update your `User.Init` method inside your model `user.js` file by adding the new attributes : 
+
+```js
+'use strict';
+
+const { Model, Validator } = require('sequelize');
+
+module.exports = (sequelize, DataTypes) => {
+  class User extends Model {
+    static associate(models) {
+      // define association here
+    }
+  }
+
+  User.init(
+    {
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          len: [4, 30],
+          isNotEmail(value) {
+            if (Validator.isEmail(value)) {
+              throw new Error('Cannot be an email.');
+            }
+          },
+        },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          len: [3, 256],
+          isEmail: true,
+        },
+      },
+      firstName: {  // New field
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [2, 50], // adjust the length as needed
+        },
+      },
+      lastName: {  // New field
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          len: [2, 50], // adjust the length as needed
+        },
+      },
+      hashedPassword: {
+        type: DataTypes.STRING.BINARY,
+        allowNull: false,
+        validate: {
+          len: [60, 60],
+        },
+      },
+    },
+    {
+      sequelize,
+      modelName: 'User',
+      defaultScope: {
+        attributes: {
+          exclude: ['hashedPassword', 'email', 'createdAt', 'updatedAt'],
+        },
+      },
+    }
+  );
+  return User;
+};
+```
+
+And then, with our `User Sign Up` in `backend/routes/api/users.js` you are going to want to make sure we take in the `firstName` and `lastName` properties from the `request body` and pass those properties into our `create` method and then pass those into our `safeUser` object so we can respond with that data as well : 
+
+```js
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const { check } = require('express-validator');
+const { handleValidationErrors } = require('../../utils/validation');
+const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { User } = require('../../db/models');
+
+
+const router = express.Router();
+
+const validateSignup = [
+    check('firstName')                      // adding firstName in our validateSignUp middlware 
+      .exists({ checkFalsy: true })
+      .withMessage('Please provide a first name.'),
+    check('lastName')                       // adding lastName in our middleware as well and then... 
+      .exists({ checkFalsy: true })
+      .withMessage('Please provide a last name.'),
+    check('email')
+      .exists({ checkFalsy: true })
+      .isEmail()
+      .withMessage('Please provide a valid email.'),
+    check('username')
+      .exists({ checkFalsy: true })
+      .isLength({ min: 4 })
+      .withMessage('Please provide a username with at least 4 characters.'),
+    check('username')
+      .not()
+      .isEmail()
+      .withMessage('Username cannot be an email.'),
+    check('password')
+      .exists({ checkFalsy: true })
+      .isLength({ min: 6 })
+      .withMessage('Password must be 6 characters or more.'),
+    handleValidationErrors
+  ];
+
+// Sign up
+router.post(
+    '/',
+    validateSignup,
+    async (req, res) => {
+      const { email, password, username, firstName, lastName } = req.body; // adding those into our request body and... 
+      const hashedPassword = bcrypt.hashSync(password);
+      const user = await User.create({ firstName, lastName, email, username, hashedPassword }); // passing those properties into our create method for User and then.... 
+  
+      const safeUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstname: user.firstName, // pass them into our safeUser object 
+        lastname: user.lastName    // pass them into our safeUser object 
+      };
+  
+      await setTokenCookie(res, safeUser);
+  
+      return res.json({
+        user: safeUser
+      });
+    }
+  );
+
+
+
+module.exports = router;
+```
+
+So once you set up the additional properties for that table you can go ahead and move on to the deployment phase. And that wraps up our exercise for this phase! 
+
+# END OF PHASE 5 ( VALIDATING THE REQUEST BODY )
+--------------------------------------------------------------------------------------------------------
