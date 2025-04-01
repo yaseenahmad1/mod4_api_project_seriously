@@ -395,6 +395,10 @@ npx sequelize migration:generate --name add-firstname-lastname-to-users
       |-- 20250304234124-demo-user.js
   |-- node_modules/
   |-- routes/
+    |-- api
+      |-- index.js
+      |-- session.js
+      |-- users.js
     |-- index.js
   |-- utils/
     |-- auth.js
