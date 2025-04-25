@@ -1,66 +1,120 @@
 const express = require('express'); // This imports the express module, which is essential for creating the server and defining routes in an Express application (PROVIDES THE ROUTER CLASS TO CREATE ROUTE HANDLERS : like router.get(), router.post(), etc. Without this you would not be able to define your router in an organized and modular way)
-const { Spot, User, SpotImage, Review, ReviewImage } = require('../../db/models'); // This imports the Spot and User models from your Sequelize db/models directory. You need this to interact with the spots in the database (to find all spoits, create a new spot, etc) and in case you need to reference users in some of the routes you need access to this model as well
+const { Op } = require('sequelize'); // We will use the Operator package to utilize with our query filter 
+const { Spot, User, SpotImage, Review, ReviewImage, sequelize } = require('../../db/models'); // This imports the Spot and User models from your Sequelize db/models directory. You need this to interact with the spots in the database (to find all spoits, create a new spot, etc) and in case you need to reference users in some of the routes you need access to this model as well
 const { check } = require('express-validator'); // This imports the check method from the express-validator library. Middleware that sanitizes input data. You use this to validate the incoming request data, ensureing that it meets certain criteria
+const { handleValidationErrors } = require('../../utils/validation');
 const { restoreUser, requireAuth } = require('../../utils/auth'); // This imports the requireAuth middleware from your auth.js utility file. 
 // Authentication: This middleware checks if the user is authenticated by verifying the presence of a valid JWT (usually stored in a cookie). If the user is not authenticated, it sends an error response (usually 401 Unauthorized).
 // Authorization: You can apply requireAuth to routes where the user must be logged in before they can access the route. For example, when creating a new spot, you’ll want to ensure that only authenticated users can do so.
-const { handleVadilationErrors } = require('../../utils/validation');
 const user = require('../../db/models/user');
 const router = express.Router(); 
 
 const validateSpotCreation = [
     check('address')
-    .trim()
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .withMessage('Address is required.'),
     check('city')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .withMessage('City is required.'),
     check('state')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .withMessage('State is required.'),
     check('country')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .withMessage('Country is required.'),
     check('lat')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .isFloat({ min: -90, max: 90 })
-    .withMessage('Latitude must be a valid coordinate.'),
+    .withMessage('Latitude must be within -90 and 90'),
     check('lng')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .isFloat({ min: -180, max: 180 })
-    .withMessage('Longitude must be a valid coordinate.'),
+    .withMessage('Longitude must be within -180 and 180'),
     check('name')
-    .notEmpty()
+    .exists({ checkFalsy: true })
+    .withMessage('Name is required')
     .isLength({ max: 50 })
     .withMessage('Name must be less than 50 characters'),
     check('description')
-    .notEmpty()
+    .exists({ checkFalsy: true })
+    .withMessage('Description is required')
     .isLength({ min: 10 })
-    .withMessage('Description must be a minimum of of 10 characters.'),
+    .withMessage('Description must be a minimum of 10 characters.'),
     check('price')
-    .notEmpty()
+    .exists({ checkFalsy: true })
     .isFloat({ min: 1 })
-    .withMessage('Price must be higher than one dollar.')
-]
+    .withMessage('Price per day must be a positive number'), 
+    handleValidationErrors
+    // you need to add handleValidation 
+];
 
 const validReview = [
     check('review')
     .exists({ checkFalsy: true })
-    .notEmpty()
     .withMessage("Review text is required"),
     check('stars')
     .exists({ checkFalsy: true })
     .isInt({ min: 1, max: 5 })
-    .withMessage("Stars must be an integer from 1 to 5")
+    .withMessage("Stars must be an integer from 1 to 5"), 
+    // PASS IN 
+    handleValidationErrors
 ]
 
+// // 1. GET /api/spots - Get all spots 
+// router.get('/', async(req, res, next) => {
+//     try {
+//         const spots = await Spot.findAll(); // store this method inside spots variable. This retrieves all spots from the database
+
+//         return res.status(200).json(spots); // send back all spots as a json response
+//     } catch (error) {    // Parse any errors to the error-handling middleware
+//         next(error);
+//     }
+// });
+
+// The endpoint below is going to include my query filters and added fields to the response 
 // 1. GET /api/spots - Get all spots 
 router.get('/', async(req, res, next) => {
     try {
-        const spots = await Spot.findAll(); // store this method inside spots variable. This retrieves all spots from the database
+        // const spots = await Spot.findAll(); // store this method inside spots variable. This retrieves all spots from the database
 
-        return res.status(200).json(spots); // send back all spots as a json response
+        // const { minPrice, maxPrice, maxLng } = req.query; 
+
+        const spotsInfo = await Spot.findAll({
+            attributes : { 
+                include : [
+                    [
+                        // we are going to extract the stars column from our Reviews table 
+                        // sequelize.fn("AVG", sequelize.col("Reviews.stars")), 
+                        sequelize.literal('ROUND(AVG("Reviews"."stars"), 1)'),
+                        "avgRating" 
+                    ]
+                ],
+            },
+            include : [ {
+                model: Review, 
+                attributes: [] // don't return any associated data from Reviews 
+            },
+            {
+                model: SpotImage,
+                where: { preview: true },
+                attributes: ['url'],
+                required: false // will allow other spot ids to come up in search 
+              }
+        ], 
+            group: ['Spot.id'] // this makes the average per spot 
+        });  // need to somehow get the avg of all the numbers in the 'star' column in my Reviews table and restrict the average to each indivudal spotId 
+        //for example if in my reviews table i have three spotId 1's then i need the avg of those three id's and then insert it in the details of the spots under each spot 
+
+        const spotsWithFormattedData = spotsInfo.map(spot => {
+            const spotJson = spot.toJSON();
+            spotJson.previewImage = spotJson.SpotImages?.[0]?.url || null;
+            delete spotJson.SpotImages;
+            return spotJson;
+          });
+
+          //! we need query filter code here --- we can use .filter to assist in this 
+       
+        return res.status(200).json(spotsWithFormattedData); // send back all spots and avgRating and preview image added to that object as a json response
     } catch (error) {    // Parse any errors to the error-handling middleware
         next(error);
     }
@@ -76,6 +130,8 @@ router.get(
         const spots = await Spot.findAll({
             where: { ownerId: userId } // Find spots where the ownerId matches the userId of the logged in user. So this is essentially providing this route with the id corresponding to our user (Demo, FakeUser, etc)
         }); 
+
+        //! We need to implement the same code that gives us avgRating and previewImage 
 
         return res.status(200).json(spots); // Send back the spots owned by the current user. So this depends on how many ids are attached to the spot locations so Demo since he is 1 can have 3-4 spots? if we assign the spots that id? 
     } catch (error) {
@@ -102,12 +158,47 @@ router.get('/:id', async (req, res, next) => {
     try {
         const id = req.params.id; // extract the id number from the endpoint that is put it (for example if endpoint is 1)
         const details = await Spot.findOne({
-            where: { id }         // Pass an object with a 'where' clause to find the spot by id . This is how you query for a spot by its id. The where clause specifies the condition to match ths id. 
-        }); 
+            where: { id },         // Pass an object with a 'where' clause to find the spot by id . This is how you query for a spot by its id. The where clause specifies the condition to match ths id. 
+                attributes : { 
+                    include : [
+                        [
+                            sequelize.fn('COUNT', sequelize.col('review')),
+                            "numReviews"
+                        ], 
+                        [
+                            // we are going to extract the stars column from our Reviews table 
+                            // sequelize.fn("AVG", sequelize.col("Reviews.stars")), 
+                            sequelize.literal('ROUND(AVG("Reviews"."stars"), 1)'),
+                            "avgStarRating" 
+                        ]
+                    ],
+                },
+                include : [ {
+                    model: Review, 
+                    attributes: [] // don't return any associated data from Reviews 
+                },
+                {
+                    model: SpotImage,
+                    // where: { preview: true },
+                    attributes: ['id', 'url', 'preview'],
+                    required: false // will allow other spot ids to come up in search 
+                },
+                {
+                    model: User,
+                    // where: { preview: true },
+                    attributes: ['id', 'firstName', 'lastName'],
+                    // required: false // will allow other spot ids to come up in search 
+                    as: 'Owner' // error message said we need to provide the alias that ownerId was referencing 
+                }
+            ], 
+                group: ['Spot.id'] // this makes the average per spot 
+            });
 
         if (!details) {           // if the spot id does not exist return an error message 
             return res.status(404).json({ message: "Spot couldn't be found" }); 
         }
+
+        //! We need to convert empty arrays of spotimages to null 
 
         return res.status(200).json(details);        // send back the details of the Spot id (our first spot which should be '123 Sunny Beach St' and all its info)
     } catch (error) {
@@ -202,10 +293,10 @@ router.put(         // this is a put request
             return res.status(403).json({ message: "You must be the owner to edit this spot"}); // they cannot make changes to this spot 
         }
 
-        // const { address, city, state, country, lat, lng, name, description, price } = req.body // destructuring our request body to ensure the fields that can be edited
-
         // perform the update :
-        const updatedSpot = await spot.update(req.body); // update and store the updated spot by using the update method on the spot instance with whatever edit has been made in our request body 
+        const updatedSpot = await spot.update(req.body); // update and store the updated spot by using the update method on the spot instance with whatever edit has been made in our request body
+        
+        // return res.status(400).json("if it doesnt pass our validation")
 
         return res.status(200).json(updatedSpot); // returning a 200 status for a success and returning the editedSpot with changed and unchanged fields back to user
 
@@ -308,6 +399,10 @@ router.post('/:spotId/reviews', requireAuth, validReview, async (req, res, next)
         next(error);
     }
 });
+
+
+
+
 
 
 module.exports = router; // This makes the spots router available to index.js

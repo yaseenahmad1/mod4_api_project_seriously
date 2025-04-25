@@ -4,7 +4,7 @@ const { check } = require('express-validator'); // Importing express-validator, 
 const { restoreUser, requireAuth } = require('../../utils/auth'); // Importing authentication middleware: 
 // - restoreUser: Restores the session user from a valid token.
 // - requireAuth: Ensures a user is authenticated before accessing protected routes.
-const { handleVadilationErrors } = require('../../utils/validation'); // Importing global error handler middleware to catch and format validation errors.
+const { handleVadilationErrors, handleValidationErrors } = require('../../utils/validation'); // Importing global error handler middleware to catch and format validation errors.
 const review = require('../../db/models/review');
 const router = express.Router(); // Creating an Express router to define review-related API routes, which will be mounted in routes/api/index.js.
 
@@ -16,7 +16,8 @@ const validReview = [
     check('stars')
     .exists({ checkFalsy: true })
     .isInt({ min: 1, max: 5 })
-    .withMessage("Stars must be an integer from 1 to 5")
+    .withMessage("Stars must be an integer from 1 to 5"),
+    handleValidationErrors
 ]
 
 // 8. GET /api/reviews/current - Get all reviews of the current user

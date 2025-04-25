@@ -30,7 +30,7 @@ router.delete('/:id', requireAuth, async (req, res, next) => { // requireAuth is
         return res.status(403).json({ message: "Review must belong to the current user"});
     }
 
-    await reviewImage.destroy(); // if all the previous checks pass then go ahead and remove the image of that spot based on its id 
+    await reviewImage.destroy(); // if all the previous checks pass then go ahead and remove the image of that review based on its id 
 
     return res.status(200).json({ message: "Successfully deleted"})
 } catch (error) {

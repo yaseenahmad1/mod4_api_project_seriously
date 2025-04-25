@@ -15,6 +15,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'spotId',
         onDelete: 'CASCADE',  // Ensures images get deleted when a Spot is deleted
       });
+      Spot.hasMany(models.Review, {
+        foreignKey: 'spotId'
+      });
     }
   }
 
