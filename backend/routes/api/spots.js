@@ -58,7 +58,43 @@ const validReview = [
     .withMessage("Stars must be an integer from 1 to 5"), 
     // PASS IN 
     handleValidationErrors
-]
+];
+
+const queryValidator = [
+    check('page')
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage('Page must be greater than or equal to 1'),
+    check('size')
+        .optional()
+        .isInt({ min: 1, max: 20 })
+        .withMessage('Size must be between 1 and 20'),
+    check('maxLat')
+        .optional()
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Maximum latitude is invalid'),
+    check('minLat')
+        .optional()
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Minimum latitude is invalid'),
+    check('maxLng')
+        .optional()
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Maximum longitude is invalid'),
+    check('minLng')
+        .optional()
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Minimum longitude is invalid'),
+    check('minPrice')
+        .optional()
+        .isFloat({ min: 0 })
+        .withMessage('Minimum price must be greater than or equal to 0'),
+    check('maxPrice')
+        .optional()
+        .isFloat({ min: 0 })
+        .withMessage('Maximum price must be greater than or equal to 0'),
+    handleValidationErrors
+];
 
 // // 1. GET /api/spots - Get all spots 
 // router.get('/', async(req, res, next) => {
@@ -73,18 +109,44 @@ const validReview = [
 
 // The endpoint below is going to include my query filters and added fields to the response 
 // 1. GET /api/spots - Get all spots 
-router.get('/', async(req, res, next) => {
+router.get('/', queryValidator, async(req, res, next) => {
     try {
-        // const spots = await Spot.findAll(); // store this method inside spots variable. This retrieves all spots from the database
+        //! ASK CHATGPT IF LET IS BETTER THAN CONST BECAUSE THESE WILL CHANGE 
+        let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query; // list all queries that would be requested 
 
-        // const { minPrice, maxPrice, maxLng } = req.query; 
+        // Convert query params into the proper types (converting to numbers via parseInt)
+        page = parseInt(page) || 1;  // Default to 1 
+        size = parseInt(size) || 20; // Default to 20 a page
+
+        // when we extract the req.query it comes as a string so we need to parse it into a number for our following checks 
+        const latFilter = {};
+        if (minLat !== undefined) latFilter[Op.gte] = parseFloat(minLat); // if minLat is not undefined then insert the lat of everything greater than the minLat into our variable 
+        if (maxLat !== undefined) latFilter[Op.lte] = parseFloat(maxLat); // if maxLat is not left undefined and is provided then provide everything under that maxLat in our object 
+
+        const lngFilter = {};
+        if (minLng !== undefined) lngFilter[Op.gte] = parseFloat(minLng); 
+        if (maxLng !== undefined) lngFilter[Op.lte] = parseFloat(maxLng); 
+        
+        const priceFilter = {};
+        if (minPrice !== undefined) priceFilter[Op.gte] = parseFloat(minPrice);
+        if (maxPrice !== undefined) priceFilter[Op.lte] = parseFloat(maxPrice);
+
+        const limit = parseInt(size); // (limit is the x results/page)
+        const offset = (parseInt(page) - 1) * limit; // (y pages) * (x results/page)
+
 
         const spotsInfo = await Spot.findAll({
+            where : {
+                ...(Object.keys(latFilter).length ? { lat: latFilter } : {}),
+                ...(Object.keys(lngFilter).length ? { lng: lngFilter } : {}),
+                ...(Object.keys(priceFilter).length ? { price: priceFilter } : {}),
+            },
+            limit, // include the limit of spots on each page which is 20 
+            offset, // gives the desired batch of spots 
             attributes : { 
                 include : [
                     [
                         // we are going to extract the stars column from our Reviews table 
-                        // sequelize.fn("AVG", sequelize.col("Reviews.stars")), 
                         sequelize.literal('ROUND(AVG("Reviews"."stars"), 1)'),
                         "avgRating" 
                     ]
@@ -101,7 +163,7 @@ router.get('/', async(req, res, next) => {
                 required: false // will allow other spot ids to come up in search 
               }
         ], 
-            group: ['Spot.id'] // this makes the average per spot 
+            group: ['Spot.id', 'SpotImage.id'] // this makes the average per spot 
         });  // need to somehow get the avg of all the numbers in the 'star' column in my Reviews table and restrict the average to each indivudal spotId 
         //for example if in my reviews table i have three spotId 1's then i need the avg of those three id's and then insert it in the details of the spots under each spot 
 
@@ -179,7 +241,7 @@ router.get('/:id', async (req, res, next) => {
                 },
                 {
                     model: SpotImage,
-                    // where: { preview: true },
+                    where: { preview: true },
                     attributes: ['id', 'url', 'preview'],
                     required: false // will allow other spot ids to come up in search 
                 },
