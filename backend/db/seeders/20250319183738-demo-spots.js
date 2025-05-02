@@ -5,9 +5,11 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;  // define your schema in options object
 }
 
+options.tableName="Spots"
+
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Spots', [
+    await queryInterface.bulkInsert(options, [
       {
         ownerId: 1, // Assuming ownerId corresponds to 'Demo-lition'
         address: '123 Sunny Beach St',
@@ -54,6 +56,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Spots', null, {});
+    await queryInterface.bulkDelete(options, null, {});
   }
 };
