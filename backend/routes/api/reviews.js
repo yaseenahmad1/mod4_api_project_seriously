@@ -30,10 +30,43 @@ router.get('/current', requireAuth, async (req, res, next) => {
     const currentUser = req.user.id; // identifying our current user by our requireAuth middleware
     // create a method to retrieve all the reviews by that user 
     const reviews = await Review.findAll( // returns a promise and must be awaited 
-        { where: { userId: currentUser }} // here we are essentially saying we want to find all the reviews of the currentUser's id (userId foreign key). 
-    ); 
+        { where: { userId: currentUser }, // here we are essentially saying we want to find all the reviews of the currentUser's id (userId foreign key). 
+        include: [
+            {
+                model: User,    // grabbing and including our User model with the required attributes 
+                attributes: ['id', 'firstName', 'lastName']
+            },
+            {
+                model: Spot, // the associated spot and its fields 
+                attributes: [ 'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'price'],
+                include: [
+                    {
+                        model: SpotImage, // along with the preview image 
+                        where: { preview: true },
+                        attributes: ['url'],
+                        required: false
+                    }
+                ]
+            },
+            {
+                model: ReviewImage, // and the review image must also be included in the response 
+                attributes: ['id', 'url']
+            }
+        ]
+    }); 
 
-    res.status(200).json(reviews); // Once we grab all our reviews we will provide it back to our client with a 200 success status and json format of reviews 
+    // Format the data to appear as a json object in the response 
+    const formattedReviews = reviews.map(review => {
+        const reviewJson = review.toJSON(); 
+
+        // assing a new property 'previewImage' on the Spot object 
+        reviewJson.Spot.previewImage = reviewJson.Spot.SpotImages?.[0]?.url || null; // if SpotImages exists and if there is at least one image occupying index 0 then take its url otherwise return null
+        delete reviewJson.Spot.SpotImages; 
+
+        return reviewJson; // return finalized version of our review object
+    }); // this formats our response back as an object instead of with the array syntax 
+
+    res.status(200).json(formattedReviews); // Once we grab all our reviews we will provide it back to our client with a 200 success status and json format of reviews 
 } catch (error) { 
     next(error); // Hnadle errors properly 
 }

@@ -60,42 +60,6 @@ const validReview = [
     handleValidationErrors
 ];
 
-const queryValidator = [
-    check('page')
-        .optional()
-        .isInt({ min: 1 })
-        .withMessage('Page must be greater than or equal to 1'),
-    check('size')
-        .optional()
-        .isInt({ min: 1, max: 20 })
-        .withMessage('Size must be between 1 and 20'),
-    check('maxLat')
-        .optional()
-        .isFloat({ min: -90, max: 90 })
-        .withMessage('Maximum latitude is invalid'),
-    check('minLat')
-        .optional()
-        .isFloat({ min: -90, max: 90 })
-        .withMessage('Minimum latitude is invalid'),
-    check('maxLng')
-        .optional()
-        .isFloat({ min: -180, max: 180 })
-        .withMessage('Maximum longitude is invalid'),
-    check('minLng')
-        .optional()
-        .isFloat({ min: -180, max: 180 })
-        .withMessage('Minimum longitude is invalid'),
-    check('minPrice')
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Minimum price must be greater than or equal to 0'),
-    check('maxPrice')
-        .optional()
-        .isFloat({ min: 0 })
-        .withMessage('Maximum price must be greater than or equal to 0'),
-    handleValidationErrors
-];
-
 // // 1. GET /api/spots - Get all spots 
 // router.get('/', async(req, res, next) => {
 //     try {
@@ -109,27 +73,39 @@ const queryValidator = [
 
 // The endpoint below is going to include my query filters and added fields to the response 
 // 1. GET /api/spots - Get all spots 
-router.get('/', queryValidator, async(req, res, next) => {
+router.get('/', async(req, res, next) => {
     try {
-        //! ASK CHATGPT IF LET IS BETTER THAN CONST BECAUSE THESE WILL CHANGE 
         let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query; // list all queries that would be requested 
 
         // Convert query params into the proper types (converting to numbers via parseInt)
-        page = parseInt(page) || 1;  // Default to 1 
-        size = parseInt(size) || 20; // Default to 20 a page
+        page = parseInt(page) || 1;  // Default to 1 if invalid or not provided
+        size = parseInt(size) || 20;  // Default to 20 if invalid or not provided
+        minLat = minLat !== undefined ? parseFloat(minLat) : undefined;
+        maxLat = maxLat !== undefined ? parseFloat(maxLat) : undefined;
+        minLng = minLng !== undefined ? parseFloat(minLng) : undefined;
+        maxLng = maxLng !== undefined ? parseFloat(maxLng) : undefined;
+        minPrice = minPrice !== undefined ? parseFloat(minPrice) : undefined;
+        maxPrice = maxPrice !== undefined ? parseFloat(maxPrice) : undefined
 
-        // when we extract the req.query it comes as a string so we need to parse it into a number for our following checks 
-        const latFilter = {};
-        if (minLat !== undefined) latFilter[Op.gte] = parseFloat(minLat); // if minLat is not undefined then insert the lat of everything greater than the minLat into our variable 
-        if (maxLat !== undefined) latFilter[Op.lte] = parseFloat(maxLat); // if maxLat is not left undefined and is provided then provide everything under that maxLat in our object 
+        // Validation
+        const errors = {};
 
-        const lngFilter = {};
-        if (minLng !== undefined) lngFilter[Op.gte] = parseFloat(minLng); 
-        if (maxLng !== undefined) lngFilter[Op.lte] = parseFloat(maxLng); 
-        
-        const priceFilter = {};
-        if (minPrice !== undefined) priceFilter[Op.gte] = parseFloat(minPrice);
-        if (maxPrice !== undefined) priceFilter[Op.lte] = parseFloat(maxPrice);
+        if (isNaN(page) || page < 1) errors.page = "Page must be greater than or equal to 1";
+        if (isNaN(size) || size < 1 || size > 20) errors.size = "Size must be between 1 and 20";
+        if (minLat !== undefined && (isNaN(minLat) || minLat < -90 || minLat > 90)) errors.minLat = "Minimum latitude is invalid";
+        if (maxLat !== undefined && (isNaN(maxLat) || maxLat < -90 || maxLat > 90)) errors.maxLat = "Maximum latitude is invalid";
+        if (minLng !== undefined && (isNaN(minLng) || minLng < -180 || minLng > 180)) errors.minLng = "Minimum longitude is invalid";
+        if (maxLng !== undefined && (isNaN(maxLng) || maxLng < -180 || maxLng > 180)) errors.maxLng = "Maximum longitude is invalid";
+        if (minPrice !== undefined && (isNaN(minPrice) || minPrice < 0)) errors.minPrice = "Minimum price must be greater than or equal to 0";
+        if (maxPrice !== undefined && (isNaN(maxPrice) || maxPrice < 0)) errors.maxPrice = "Maximum price must be greater than or equal to 0";
+
+    // If there are errors, respond with a 400 status (but this can also be done by adding a custom validator and linking this to the hnadlevalidationerror)
+    if (Object.keys(errors).length > 0) {
+        return res.status(400).json({
+            message: "Bad Request",
+            errors
+        });
+    }
 
         const limit = parseInt(size); // (limit is the x results/page)
         const offset = (parseInt(page) - 1) * limit; // (y pages) * (x results/page)
@@ -137,9 +113,9 @@ router.get('/', queryValidator, async(req, res, next) => {
 
         const spotsInfo = await Spot.findAll({
             where : {
-                ...(Object.keys(latFilter).length ? { lat: latFilter } : {}),
-                ...(Object.keys(lngFilter).length ? { lng: lngFilter } : {}),
-                ...(Object.keys(priceFilter).length ? { price: priceFilter } : {}),
+                lat: { [Op.between]: [minLat || -90, maxLat || 90] },
+                lng: { [Op.between]: [minLng || -180, maxLng || 180] },
+                price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] }
             },
             limit, // include the limit of spots on each page which is 20 
             offset, // gives the desired batch of spots 
@@ -163,7 +139,7 @@ router.get('/', queryValidator, async(req, res, next) => {
                 required: false // will allow other spot ids to come up in search 
               }
         ], 
-            group: ['Spot.id', 'SpotImage.id'] // this makes the average per spot 
+            group: ['Spot.id'] // this makes the average per spot 
         });  // need to somehow get the avg of all the numbers in the 'star' column in my Reviews table and restrict the average to each indivudal spotId 
         //for example if in my reviews table i have three spotId 1's then i need the avg of those three id's and then insert it in the details of the spots under each spot 
 
@@ -190,12 +166,38 @@ router.get(
     try { 
         const userId = req.user.id; // Get current user's ID - req.user is typically added by the requireAuth middleware after a user has logged in
         const spots = await Spot.findAll({
-            where: { ownerId: userId } // Find spots where the ownerId matches the userId of the logged in user. So this is essentially providing this route with the id corresponding to our user (Demo, FakeUser, etc)
-        }); 
+            attributes : { 
+                include : [
+                    [
+                        // we are going to extract the stars column from our Reviews table 
+                        sequelize.literal('ROUND(AVG("Reviews"."stars"), 1)'),
+                        "avgRating" 
+                    ]
+                ],
+            },
+            include : [ {
+                model: Review, 
+                attributes: [] // don't return any associated data from Reviews 
+            },
+            {
+                model: SpotImage,
+                where: { preview: true },
+                attributes: ['url'],
+                required: false // will allow other spot ids to come up in search 
+              }
+        ], 
+            group: ['Spot.id'] // this makes the average per spot 
+        });
 
         //! We need to implement the same code that gives us avgRating and previewImage 
+        const spotsWithFormattedData = spots.map(spot => {
+            const spotJson = spot.toJSON();
+            spotJson.previewImage = spotJson.SpotImages?.[0]?.url || null;
+            delete spotJson.SpotImages;
+            return spotJson;
+          });
 
-        return res.status(200).json(spots); // Send back the spots owned by the current user. So this depends on how many ids are attached to the spot locations so Demo since he is 1 can have 3-4 spots? if we assign the spots that id? 
+        return res.status(200).json(spotsWithFormattedData); // Send back the spots owned by the current user. So this depends on how many ids are attached to the spot locations so Demo since he is 1 can have 3-4 spots? if we assign the spots that id? 
     } catch (error) {
         next(error);    // this is passing that error on to next middleware which eventually will go to our global middleware in app.js
     }
@@ -312,7 +314,7 @@ router.post(
             }
 
             if (spot.ownerId !== userId) {  // chaining our foreign key to our Spot model and comparing it to the user id so if userId two is trying to add an image to a spot not associated with them, they cannot modify it 
-                return res.status(403).json({ message: " You must be the owner of this spot to make changes." });
+                return res.status(403).json({ message: "You must be the owner of this spot to make changes." });
             }
 
             const { url, preview } = req.body;   // grab the url from the json request body that will be used to add the image
@@ -412,10 +414,23 @@ router.get('/:spotId/reviews', async (req, res, next) => { // if we are just wan
     }
 
     const reviews = await Review.findAll(
-        { where : { spotId } }        // grab all reviews from that spotId
-    ); 
+        { where : { spotId },       // grab all reviews from that spotId
+        include: [
+            {
+                model: User,
+                attributes: ['id', 'firstName', 'lastName']
+            },
+            {
+                model: ReviewImage, 
+                attributes: ['id', 'url']
+            }
+        ]
+    }); 
 
-    return res.status(200).json(reviews); // otherwise return all the reviews of that spotId with a 200 status
+    //format our response 
+    const formattedReviews = reviews.map(review => review.toJSON()); 
+
+    return res.status(200).json({Reviews: formattedReviews}); // otherwise return all the reviews of that spotId with a 200 status
     } catch (error) {
         next(error); // throw any misc errors into our global error handler middleware
     }
