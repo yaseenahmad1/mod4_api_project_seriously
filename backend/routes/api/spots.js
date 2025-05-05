@@ -74,7 +74,7 @@ const validReview = [
 // The endpoint below is going to include my query filters and added fields to the response 
 // 1. GET /api/spots - Get all spots 
 router.get('/', async(req, res, next) => {
-    try {
+  
         let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query; // list all queries that would be requested 
 
         // Convert query params into the proper types (converting to numbers via parseInt)
@@ -107,56 +107,112 @@ router.get('/', async(req, res, next) => {
         });
     }
 
-        const limit = parseInt(size); // (limit is the x results/page)
-        const offset = (parseInt(page) - 1) * limit; // (y pages) * (x results/page)
-
-
-        const spotsInfo = await Spot.findAll({
-            where : {
-                lat: { [Op.between]: [minLat || -90, maxLat || 90] },
-                lng: { [Op.between]: [minLng || -180, maxLng || 180] },
-                price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] }
+        // Get all spots with the optional filters, include the images and reviews for avgRating and previewImage 
+        const spots = await Spot.findAll({
+            where: {
+                lat: { [Op.between]: [minLat || -90, maxLat || 90] }, // filter latitude between minLat and maxLat 
+                lng: { [Op.between]: [minLng || -180, maxLng || 180] }, // same for longitude 
+                price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] } // same for price
             },
-            limit, // include the limit of spots on each page which is 20 
-            offset, // gives the desired batch of spots 
-            attributes : { 
-                include : [
-                    [
-                        // we are going to extract the stars column from our Reviews table 
-                        sequelize.literal('ROUND(AVG("Reviews"."stars"), 1)'),
-                        "avgRating" 
-                    ]
-                ],
-            },
-            include : [ {
-                model: Review, 
-                attributes: [] // don't return any associated data from Reviews 
-            },
-            {
-                model: SpotImage,
-                where: { preview: true },
-                attributes: ['url'],
-                required: false // will allow other spot ids to come up in search 
-              }
-        ], 
-            group: ['Spot.id'] // this makes the average per spot 
-        });  // need to somehow get the avg of all the numbers in the 'star' column in my Reviews table and restrict the average to each indivudal spotId 
-        //for example if in my reviews table i have three spotId 1's then i need the avg of those three id's and then insert it in the details of the spots under each spot 
+            // apply pagination: limtiing how many results per page 
+            limit: size,
+            offset: (page - 1) * size, // calculate offset based on the page number (standard equation)
+            include: [ // include the required attributes from both models for the average star calculation and preview image 
+                {
+                    model: SpotImage,
+                    attributes: ['url', 'preview']
+                },
+                {
+                    model: Review,
+                    attributes: ['stars'],
+                    required: false
+                }
+            ]
+        });
+    
+        let spotsList = spots.map(spot => spot.toJSON()); // sonvert the sequelize instances into json object format 
+    
+        // Process each spot to calculate avgRating and previewImage
+        spotsList.forEach(spot => {
+            // Calculate average rating
+            let totalStars = 0; // start the star and review count at zero 
+            let reviewCount = 0;
+            spot.Reviews.forEach(review => { // then loop through each review and add the total stars 
+                totalStars += review.stars;
+                reviewCount++;
+            });
+    
+            if (reviewCount > 0) {
+                spot.avgRating = parseFloat((totalStars / reviewCount).toFixed(1)); // if there is a star for the review divide the star total over the review count and fix the decimal to 1 place
+            } else {
+                spot.avgRating = null; // otherwise return the value as null 
+            }
+            delete spot.Reviews; // Remove Reviews after processing avgRating
+    
+            // Calculate preview image
+            spot.SpotImages.forEach(image => {
+                if (image.preview === true) {
+                    spot.previewImage = image.url;
+                }
+            });
+            if (!spot.previewImage) {
+                spot.previewImage = 'No preview image available';
+            }
+            delete spot.SpotImages; // Remove SpotImages after processing previewImage
+    
+            return spot;
+        });
+    
+        res.json({ Spots: spotsList, page, size });
+    });
 
-        const spotsWithFormattedData = spotsInfo.map(spot => {
-            const spotJson = spot.toJSON();
-            spotJson.previewImage = spotJson.SpotImages?.[0]?.url || null;
-            delete spotJson.SpotImages;
-            return spotJson;
-          });
+//         const spotsInfo = await Spot.findAll({
+//             where : {
+//                 lat: { [Op.between]: [minLat || -90, maxLat || 90] },
+//                 lng: { [Op.between]: [minLng || -180, maxLng || 180] },
+//                 price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] }
+//             },
+//             limit, // include the limit of spots on each page which is 20 
+//             offset, // gives the desired batch of spots 
+//             attributes : { 
+//                 include : [
+//                     [
+//                         // we are going to extract the stars column from our Reviews table 
+//                         sequelize.fn('ROUND', sequelize.fn('AVG', sequelize.col("Reviews.stars"), 1)),
+//                         "avgRating" 
+//                     ]
+//                 ],
+//             },
+//             include : [ {
+//                 model: Review, 
+//                 attributes: [], // don't return any associated data from Reviews 
+//                 required: false
+//             },
+//             {
+//                 model: SpotImage,
+//                 where: { preview: true },
+//                 attributes: ['url'],
+//                 required: false // will allow other spot ids to come up in search 
+//               }
+//         ], 
+//             group: ['Spot.id'] // this makes the average per spot 
+//         });  // need to somehow get the avg of all the numbers in the 'star' column in my Reviews table and restrict the average to each indivudal spotId 
+//         //for example if in my reviews table i have three spotId 1's then i need the avg of those three id's and then insert it in the details of the spots under each spot 
 
-          //! we need query filter code here --- we can use .filter to assist in this 
+//         const spotsWithFormattedData = spotsInfo.map(spot => {
+//             const spotJson = spot.toJSON();
+//             spotJson.previewImage = spotJson.SpotImages?.[0]?.url || null;
+//             delete spotJson.SpotImages;
+//             return spotJson;
+//           });
+
+//           //! we need query filter code here --- we can use .filter to assist in this 
        
-        return res.status(200).json(spotsWithFormattedData); // send back all spots and avgRating and preview image added to that object as a json response
-    } catch (error) {    // Parse any errors to the error-handling middleware
-        next(error);
-    }
-});
+//         return res.status(200).json(spotsWithFormattedData); // send back all spots and avgRating and preview image added to that object as a json response
+//     } catch (error) {    // Parse any errors to the error-handling middleware
+//         next(error);
+//     }
+// });
 
 // 2. GET /api/spots/current - Get all spots owned by the current user 
 router.get(
