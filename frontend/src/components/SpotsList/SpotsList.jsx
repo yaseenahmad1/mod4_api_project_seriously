@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux"; // This will allow us to
 // useSelector lets us read the data from the Redux store  (to get list of all the spots)
 import { fetchSpots } from '../../store/spots.js'; // This imports the Redux thunk action generated in this file 
 // fetchSpots will be an async function that makes a GET request to the backend and puts the data in the Redux store 
+import './SpotsList.css'; // import the css styling into this file which will then be attached to App
 
 function SpotsList() { // function name defines our React component named 'SpotsList'
 
@@ -19,20 +20,22 @@ function SpotsList() { // function name defines our React component named 'Spots
     }, [dispatch]); // the [dispatch] is a dependency array - it ensures the effect runs only if dispatch changes (which it never does here)
     // this will call our backend API (/api/spots), then stores the results in Redux
 
-    return ( <div className="spots-list"> {/* this is our JSX render block when returns the actual HTML to show in the browser */}
+    return ( <div className="spots-grid"> {/* this is our JSX render block when returns the actual HTML to show in the browser */}
             {/* Everything inside here is what the user will now see */}
             {spots.map(spot => ( // This will loop over every spot in the list (the array from Object.values())
             // For each spot, it will create a card div with its details
             // Via Requirements page we will present the information like so : 
-                <div key={spot.id} className="spot-card"> 
+                <div key={spot.id} className="spot-tile"> 
                     <img 
                         src={spot.previewImage !== 'No preview image available' ? spot.previewImage : '/default-image.jpg'}
                         alt={spot.name}
-                        className="spot-image"/>
-                    <h2>{spot.name}</h2>
-                    <p>{spot.city}, {spot.state}</p>
-                    <p>${spot.price} / night</p>
-                    <p>{spot.avgRating ?? 'New'}</p> { /* The ?? is what is called a 'nullish coalescer' which returns the right-hand value only if the left-hand valie is null or undefined */}
+                        className="spot-image"
+                    />
+                    <div className="spots-info">
+                        <div className="spot-location">{spot.city}, {spot.state}</div>
+                        <div className="spot-price">${spot.price} / night</div>
+                        <div className="spot-rating">{spot.avgRating ?? 'New'}</div> { /* The ?? is what is called a 'nullish coalescer' which returns the right-hand value only if the left-hand valie is null or undefined */}
+                    </div> 
                 </div>
             ))}
     </div>

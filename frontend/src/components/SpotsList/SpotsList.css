@@ -1,0 +1,43 @@
+.spots-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    padding: 2rem;
+  }
+  
+  .spot-tile {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .spot-tile:hover {
+    transform: scale(1.02);
+  }
+  
+  .spot-image {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+  }
+  
+  .spot-info {
+    padding: 0.75rem;
+  }
+  
+  .spot-location {
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+  
+  .spot-price {
+    margin-bottom: 0.25rem;
+  }
+  
+  .spot-rating {
+    text-align: right;
+    font-weight: bold;
+  }
