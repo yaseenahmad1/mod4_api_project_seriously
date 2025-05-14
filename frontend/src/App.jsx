@@ -31,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <SpotsList />
+      }, 
+      {
+        path: '/spots/:id', 
+        element: <SpotsDetails />
       }
     ]
   }
