@@ -1,5 +1,5 @@
 // First, we will need to import the necessary tools to export this piece of code 
-
+import { Link } from "react-router-dom"; // Adding this import to redirect links 
 import { useEffect } from "react"; // This will let us run code when the component first loads or mounts (componenetDidMount)
 import { useDispatch, useSelector } from "react-redux"; // This will allow us to interact with our global state. 
 // useDispatch allows us to send actions to fetch our spots
@@ -25,20 +25,24 @@ function SpotsList() { // function name defines our React component named 'Spots
             {spots.map(spot => ( // This will loop over every spot in the list (the array from Object.values())
             // For each spot, it will create a card div with its details
             // Via Requirements page we will present the information like so : 
-                <div key={spot.id} className="spot-tile"> 
-                    <img 
-                        src={spot.previewImage !== 'No preview image available' ? spot.previewImage : '/default-image.jpg'}
-                        alt={spot.name}
-                        className="spot-image"
-                    />
-                    <div className="spots-info">
-                        <div className="spot-location">{spot.city}, {spot.state}</div>
-                        <div className="spot-price">${spot.price} / night</div>
-                        <div className="spot-rating">{spot.avgRating ?? 'New'}</div> { /* The ?? is what is called a 'nullish coalescer' which returns the right-hand value only if the left-hand valie is null or undefined */}
-                    </div> 
-                </div>
+            <Link 
+                to={`spots/${spot.id}`} // This will make our tiles clickable 
+                key={spot.id}
+                className="spot-tile"
+            >
+                <img 
+                    src={spot.previewImage !== 'No preview image available' ? spot.previewImage : '/default-image.jpg'}
+                    alt={spot.name}
+                    className="spot-image"
+                />
+                <div className="spots-info">
+                    <div className="spot-location">{spot.city}, {spot.state}</div>
+                    <div className="spot-price">${spot.price} / night</div>
+                    <div className="spot-rating">{spot.avgRating ?? 'New'}</div> { /* The ?? is what is called a 'nullish coalescer' which returns the right-hand value only if the left-hand valie is null or undefined */}
+                </div> 
+            </Link>
             ))}
-    </div>
+        </div>
     );
 }
 
