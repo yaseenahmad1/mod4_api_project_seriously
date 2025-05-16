@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useDebugValue, useEffect } from "react";
-import { fetchSpotDetails, fetchSpots } from "../../store/spots";
+import { useEffect } from "react";
+import { fetchSpotDetails } from "../../store/spots";
 import { fetchSpotReviews } from "../../store/reviews";
 import './SpotDetails.css';
 
@@ -9,23 +9,30 @@ function SpotDetails() {
     const { spotId } = useParams(); 
     const dispatch = useDispatch();
 
-    const spot = useSelector(state => state.spots[spotId]); // Accessing the spot from Redux
-    const reviews = useSelector(state => Object.values(state.reviews)); // reads the reviews from the redux store  
+    const spot = useSelector(state => state.spots[spotId] || {}); // Accessing the spot from Redux
+    const reviews = useSelector(state => Object.values(state.reviews) || {}); // reads the reviews from the redux store  
 
     useEffect(() => {
+        if (spotId) {
         dispatch(fetchSpotDetails(spotId));
         dispatch(fetchSpotReviews(spotId)); // adding the fetch reviews with the details 
-    }, [dispatch, spotId]);
+    } 
+}, [dispatch, spotId]);
+
+    // debugging 
+    console.log("spotId:", spotId);
+    console.log("spot:", spot); 
 
     if (!spot) return <div>Loading...</div>;
 
-    const { name, city, state, country, price, avgRating, description, previewImage } = spot; 
+    const { name, city, state, country, price, avgRating, description } = spot;
+    // error reads that this cannot be destructured  
 
     // const mainImage = SpotImages[0]; 
     // const sideImages = indexOf(SpotImages.length); 
 
     return (
-        <div className="spot-details">
+    <div className="spot-details">
       <h1>{name}</h1>
       <p>{city}, {state}, {country}</p>
 
