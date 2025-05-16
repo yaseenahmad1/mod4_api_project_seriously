@@ -38,12 +38,12 @@ export const fetchSpotDetails = (spotId) => async (dispatch) => {
     }
 }; 
 
-const intialState = {};  // Start the initial state as an empty object with no spots loaded yet
+const initialState = {};  // Start the initial state as an empty object with no spots loaded yet
 
 // REDUCER FUNCTION 
 // This reducer function is responsible to manage the state of all spots in Redux
 // It listens for specific actions and updates the Redux state accoridngly 
-export default function spotsReducer(state = intialState, action) {
+const spotsReducer = (state = initialState, action) => {
     switch (action.type) {
         case LOAD_SPOTS:
             // If we are loading a list of spots on our landing page, then we turn the array into an object with the spotid as they key
@@ -79,3 +79,5 @@ export default function spotsReducer(state = intialState, action) {
 //   2: { id: 2, name: "Loft", city: "Seattle", ... }
 // }
 // This format is easier for quick lookups.
+
+export default spotsReducer; 
