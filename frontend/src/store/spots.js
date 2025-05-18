@@ -3,6 +3,11 @@ import { csrfFetch } from "./csrf"; // this brings in a special version of fetch
 const LOAD_SPOTS = 'spots/LOAD_SPOTS'; // this is for our landing page
 const LOAD_SPOT_DETAILS = 'spots/LOAD_SPOT_DETAILS'; // this is for our spot details 
 
+
+// Think of the payload (which is the data) as the response body 
+// Think of thunk action as just functions returning functions (closure) retrieving backend data
+// Reducer takes the thunk action and updates the state based on the actions the thunk dispatched to it 
+
 const loadSpots = (spots) => ({
     type: LOAD_SPOTS,
     spots

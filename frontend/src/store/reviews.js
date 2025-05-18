@@ -1,3 +1,13 @@
+import { csrfFetch } from "./csrf"; // this brings in a special version of fetch that includes CSRFtokens to help protect your app from CSRF attacks
+
+// Action 
+const SET_REVIEWS = 'reviews/SET_REVIEWS'; 
+
+const setReviews = (reviews) => ({
+    type: SET_REVIEWS,
+    reviews
+}); 
+
 // Thunk action to fetch reviews based off a spot's id 
 export const fetchSpotReviews = (spotId) => async (dispatch) => {
     const res = await fetch(`/api/spots/${spotId}/reviews`); // implementing the api endpoint for our fetch request 
@@ -12,13 +22,6 @@ export const fetchSpotReviews = (spotId) => async (dispatch) => {
     }
 }; 
 
-// Action 
-const SET_REVIEWS = 'reviews/setReviews'; 
-
-export const setReviews = (reviews) => ({
-    type: SET_REVIEWS,
-    reviews
-}); 
 
 // Reducer 
 const reviewsReducer = (state = {}, action) => {
