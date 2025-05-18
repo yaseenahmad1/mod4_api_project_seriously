@@ -2,6 +2,7 @@ import { csrfFetch } from "./csrf"; // this brings in a special version of fetch
 
 const LOAD_SPOTS = 'spots/LOAD_SPOTS'; // this is for our landing page
 const LOAD_SPOT_DETAILS = 'spots/LOAD_SPOT_DETAILS'; // this is for our spot details 
+const ADD_SPOT = 'spots/ADD_SPOT'; // this is for our create a spot form 
 
 
 // Think of the payload (which is the data) as the response body 
@@ -20,6 +21,12 @@ const loadSpotDetails = (spot) => ({
     type: LOAD_SPOT_DETAILS,
     spot
 }); 
+
+// Action object that tells reducer what kind of action is occuring 
+export const addSpot = (spot) => ({
+    type: ADD_SPOT,
+    spot
+});
 
 // Implement Thunk Action (Async)
 export const fetchSpots = () => async (dispatch) => {
@@ -40,6 +47,24 @@ export const fetchSpotDetails = (spotId) => async (dispatch) => {
     if (res.ok) {   // if our response was successful 
         const data = await res.json(); // then we convert our response into json format and store it inside a variable
         dispatch(loadSpotDetails(data)); // we then dispatch the action to update the Redux state with spots details  
+    }
+}; 
+
+// Thunk to create a spot
+export const createSpot = (spotData) => async (dispatch) => {
+    const res = await fetch('api/spots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(spotData)
+    });
+
+    if (res.ok) {
+        const newSpot = await res.json(); 
+        dispatch({ type: ADD_SPOT, spot: newSpot });
+        return newSpot;
+    } else {
+        const error = await res.json();
+        return Promise.reject(error); 
     }
 }; 
 
@@ -64,6 +89,12 @@ const spotsReducer = (state = initialState, action) => {
                 ...state, // spread the existing state and add the spot by id 
                 [action.spot.id]: action.spot
             }; 
+
+        case ADD_SPOT: {
+            return {
+                ...state, [action.spot.id]: action.spot
+            };
+        }
 
 
         default: // if the action is not recognized, return the current state unchanged 
