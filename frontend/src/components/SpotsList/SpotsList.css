@@ -1,9 +1,15 @@
+.title {
+    text-align: center;   /* centers the text horizontally */
+    font-family: Arial, sans-serif;  /* sets font to Arial with fallback */
+  }
+
 .spots-grid {
     display: grid;
     grid-template-columns: 250px 250px 250px 250px;
     gap: 1rem;
     padding: 1rem;
-    margin: 2rem;
+    margin: 2rem auto;
+    max-width: 1080px
   }
   
   .spot-tile {
@@ -13,6 +19,8 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s ease;
     cursor: pointer;
+    text-decoration: none;
+    color: black;
   }
   
   .spot-tile:hover {
@@ -44,3 +52,4 @@
     text-align: right;
     font-weight: bold;
   }
+

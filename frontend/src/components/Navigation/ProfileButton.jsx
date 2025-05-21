@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaUserCircle } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
+import { Link } from 'react-router-dom';
 import './ProfileButton.css'
 
 function ProfileButton({ user }) {
@@ -45,15 +46,24 @@ function ProfileButton({ user }) {
 
   return (
     <>
-      <button onClick={toggleMenu}>
+      <button onClick={toggleMenu} className='profile-button'>
+        <FaBars className='hamburger-icon' />
         <FaUserCircle />
       </button>
       <ul className={ulClassName} ref={ulRef}>
         {user ? (
           <>
-            <li>{user.username}</li>
-            <li>{user.firstName} {user.lastName}</li>
+            <li>Hello, {user.firstName} {user.lastName}</li>
             <li>{user.email}</li>
+            <hr></hr>
+            <li>
+              <Link to="/spots/current">
+                <button>Manage Spots</button>
+              </Link>
+              <Link to="/reviews/current">
+                <button>Manage Reviews</button>
+              </Link>
+            </li>
             <li>
               <button onClick={logout}>Log Out</button>
             </li>
