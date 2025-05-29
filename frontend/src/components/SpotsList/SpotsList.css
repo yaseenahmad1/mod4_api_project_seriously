@@ -1,7 +1,17 @@
-.title {
-    text-align: center;   /* centers the text horizontally */
-    font-family: Arial, sans-serif;  /* sets font to Arial with fallback */
+.page-background {
+    background-image: url('/images/logo.svg'); /* Make sure path is correct */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover; /* or cover if you want it to fill the screen */
+    background-attachment: fixed;
+    size: 100px;
+    padding: 2rem;
+    position: relative;
   }
+
+.page-color-background {
+    background-color:rgb(245, 246, 247)
+}
 
 .spots-grid {
     display: grid;
@@ -13,10 +23,12 @@
   }
   
   .spot-tile {
-    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: aliceblue;
+    border: 2px solid rgb(255, 255, 255);
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 90px 95px rgba(0,0,0,0.1);
     transition: transform 0.2s ease;
     cursor: pointer;
     text-decoration: none;
@@ -24,7 +36,7 @@
   }
   
   .spot-tile:hover {
-    transform: scale(1.02);
+    transform: scale(1.0);
   }
   
   .spot-image {
@@ -50,6 +62,6 @@
   
   .spot-rating {
     text-align: right;
-    font-weight: bold;
+    font-weight:bold;
   }
 

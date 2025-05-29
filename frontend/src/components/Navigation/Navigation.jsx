@@ -9,25 +9,30 @@ function Navigation({ isLoaded }) {
   const sessionUser = useSelector(state => state.session.user);
 
   return (
-    <ul>
-      <li>
-        <NavLink to="/">Home</NavLink>
-      </li>
+   <header className='main-header'> 
+      <div className='left-nav'>
+        <NavLink to="/">
+          <img src="/images/logo.svg" alt="Zen Den Logo" className='website-logo' />
+        </NavLink>
+      </div>
+
+      <div className='center-slogan'>Find Your Happy Place.</div>
+
       {isLoaded && (
         <>
-        <li>
+        <div className='right-nav'>
           <ProfileButton user={sessionUser} />
-        </li>
+        </div>
 
         {/* Now we only want to show this button when user logs in */}
         { sessionUser && (
-          <li>
+          <div className='right-nav'>
             <NavLink to='/spots/new' className="create-spot-button">Create a Spot</NavLink>
-          </li>
+          </div>
         )}
         </>
       )}
-    </ul>
+    </header>
   );
 }
 

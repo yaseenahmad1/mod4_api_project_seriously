@@ -23,8 +23,8 @@ function SpotsList() { // function name defines our React component named 'Spots
 
     return ( 
     <>
-        <h1 className='title'>ZEN DEN</h1>
-        <h4 className='title'>Find Your Happy Place</h4>
+        <div className="page-color-background">
+        <div className="page-background">
         <div className="spots-grid"> {/* this is our JSX render block when returns the actual HTML to show in the browser */}
             {/* Everything inside here is what the user will now see */}
             {spots.map(spot => ( // This will loop over every spot in the list (the array from Object.values())
@@ -49,6 +49,8 @@ function SpotsList() { // function name defines our React component named 'Spots
                 </div> 
             </Link>
             ))}
+        </div>
+        </div>
         </div>
     </>
     );

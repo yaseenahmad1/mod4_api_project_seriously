@@ -136,7 +136,7 @@ export const uploadSpotImage = (spotId, imageData) => async (dispatch) => {
       return Promise.reject(error);
     }
   };
-  
+
   export const removeSpot = (spotId) => ({
     type: REMOVE_SPOT,
     spotId

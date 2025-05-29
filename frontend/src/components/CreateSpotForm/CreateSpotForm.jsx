@@ -75,8 +75,7 @@ const CreateSpotForm = () => {
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      return setErrors(newErrors);
     }
 
     const spotData = {
@@ -134,7 +133,6 @@ const CreateSpotForm = () => {
           placeholder="Country"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          required
         />
         {errors.country && <p className="error">{errors.country}</p>}
         <input
@@ -142,7 +140,6 @@ const CreateSpotForm = () => {
           placeholder="Street Address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          required
         />
         {errors.address && <p className="error">{errors.address}</p>}
         <input
@@ -150,7 +147,6 @@ const CreateSpotForm = () => {
           placeholder="City"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          required
         />
         {errors.city && <p className="error">{errors.city}</p>}
         <input
@@ -158,7 +154,6 @@ const CreateSpotForm = () => {
           placeholder="State"
           value={stateName}
           onChange={(e) => setStateName(e.target.value)}
-          required
         />
         {errors.state && <p className="error">{errors.state}</p>}
         <input

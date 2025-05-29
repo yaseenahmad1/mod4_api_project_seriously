@@ -46,10 +46,12 @@ function ProfileButton({ user }) {
 
   return (
     <>
+    <div className='profile-container'>
       <button onClick={toggleMenu} className='profile-button'>
         <FaBars className='hamburger-icon' />
         <FaUserCircle />
       </button>
+    </div>
       <ul className={ulClassName} ref={ulRef}>
         {user ? (
           <>
