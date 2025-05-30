@@ -1,16 +1,13 @@
 .page-background {
     background-image: url('/images/logo.svg'); /* Make sure path is correct */
-    background-repeat: no-repeat;
     background-position: center;
     background-size: cover; /* or cover if you want it to fill the screen */
-    background-attachment: fixed;
-    size: 100px;
-    padding: 2rem;
-    position: relative;
+    background-attachment:fixed;
+    padding: 3rem;
   }
 
 .page-color-background {
-    background-color:rgb(245, 246, 247)
+    background-color:rgb(127, 163, 186)
 }
 
 .spots-grid {
@@ -24,7 +21,7 @@
   
   .spot-tile {
     padding: 5px;
-    background-color: aliceblue;
+    background-color: rgb(252, 252, 252);
     border: 2px solid rgb(255, 255, 255);
     border-radius: 10px;
     overflow: hidden;
@@ -51,17 +48,19 @@
   
   .spot-location {
     font-family:Arial, Helvetica, sans-serif;
-    font-weight: bold;
-    margin-bottom: 0.25rem;
-    
+    font-weight:400;
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;    
   }
   
   .spot-price {
+    font-family:Arial, Helvetica, sans-serif;
     margin-bottom: 0.25rem;
   }
   
   .spot-rating {
-    text-align: right;
+    text-align:right;
     font-weight:bold;
+    font-size: 20px;
   }
 

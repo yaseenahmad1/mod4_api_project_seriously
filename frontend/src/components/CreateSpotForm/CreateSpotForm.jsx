@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux'; // help send information to reducer 
 import { useNavigate } from 'react-router-dom';
 import { createSpot, uploadSpotImage } from '../../store/spots';
 
