@@ -57,7 +57,7 @@ function LoginFormModal() {
         <button 
         type="submit"
         className='submit-button'
-        disabled={credential.length < 4 || password.length < 6} /* Per requirements we need to create a feature on the button that remains disabled unless the conditions are met so our user credential and password have restrictions as to how short the length of characters can be*/
+        disabled={credential.length < 4 || password.length < 6} /* requirements we need to create a feature on the button that remains disabled unless the conditions are met so our user credential and password have restrictions as to how short the length of characters can be*/
         >Log In</button>
         <a
         href="#"

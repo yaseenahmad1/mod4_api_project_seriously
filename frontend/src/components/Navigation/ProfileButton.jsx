@@ -1,6 +1,7 @@
 // frontend/src/components/Navigation/ProfileButton.jsx
 
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import * as sessionActions from '../../store/session';
@@ -10,10 +11,12 @@ import SignupFormModal from '../SignupFormModal/SignupFormModal';
 import { Link } from 'react-router-dom';
 import './ProfileButton.css'
 
+
 function ProfileButton({ user }) {
   const dispatch = useDispatch();
   const [showMenu, setShowMenu] = useState(false);
   const ulRef = useRef();
+  const navigate = useNavigate();
 
   const toggleMenu = (e) => {
     e.stopPropagation(); // Keep from bubbling up to document and triggering closeMenu
@@ -40,6 +43,7 @@ function ProfileButton({ user }) {
     e.preventDefault();
     dispatch(sessionActions.logout());
     closeMenu();
+    navigate('/'); // requirements require that when user hits logout it redirects them to homepage
   };
 
   const ulClassName = "profile-dropdown" + (showMenu ? "" : " hidden");

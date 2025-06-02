@@ -1,3 +1,4 @@
+/* Mimic Create Spot Form */
 .form-page {
     max-width: 600px;
     margin: 40px auto;
@@ -7,44 +8,47 @@
     background-color: #f9f9f9;
     font-family: Arial, sans-serif;
   }
-
-  .create-spot-text {
+  
+  .update-form-text {
+    align-content: center;
     font-size: 40px;
   }
-
-  .section-titles {
+  
+  .update-titles {
     font-size: 20px;
-  }
-
-  .paragraph-titles {
-    font-size: 15px;
+    margin-top: 20px;
   }
   
-  /* Form styling */
+  .update-paragraph {
+    font-size: 15px;
+    margin-bottom: 15px;
+  }
+  
   .section-one {
     display: flex;
     flex-direction: column;
   }
   
-  /* Labels stacked above inputs with spacing */
-  .create-label {
+  .update-label {
     margin-top: 15px;
     margin-bottom: 5px;
     font-weight: bold;
     font-size: 14px;
   }
   
-  /* Inputs and textarea full width and some padding */
   .section-one input,
-  .section-one textarea {
+  .section-one textarea,
+  form input,
+  form textarea {
     padding: 8px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
     box-sizing: border-box;
+    margin-bottom: 10px;
   }
-
+  
   .price-input-container {
     display: flex;
     align-items: center;
@@ -52,8 +56,8 @@
     margin-top: 5px;
   }
   
-  /* Submit button styling */
-  .section-one button {
+  .update-form-button {
+    width: 100%;
     margin-top: 25px;
     background-color: #d32f2f; 
     color: white;
@@ -65,12 +69,11 @@
     cursor: pointer;
   }
   
-  /* Button hover effect to make a subtle slightly darker red appear */
-  .section-one button[type="submit"]:hover {
+  .update-button:hover {
     background-color: #b71c1c;
   }
   
-  /* Error message style */
+
   .error {
     color: red;
     font-size: 13px;

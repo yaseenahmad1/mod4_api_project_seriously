@@ -20,16 +20,13 @@ function Navigation({ isLoaded }) {
 
       {isLoaded && (
         <>
+        {/* we only want to show this button when user logs in hence the navlink*/}
         <div className='right-nav'>
+        { sessionUser && (
+        <NavLink to='/spots/new' className="create-spot-button">Create a New Spot</NavLink>
+        )}
           <ProfileButton user={sessionUser} />
         </div>
-
-        {/* Now we only want to show this button when user logs in */}
-        { sessionUser && (
-          <div className='right-nav'>
-            <NavLink to='/spots/new' className="create-spot-button">Create a Spot</NavLink>
-          </div>
-        )}
         </>
       )}
     </header>

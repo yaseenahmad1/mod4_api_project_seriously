@@ -42,6 +42,14 @@
   .thumbnail:hover {
     transform: scale(1.05);
   }
+
+  .info-booking-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 24px;
+    gap: 32px;
+  }
   
   .spot-info {
     margin-top: 24px;
@@ -52,5 +60,109 @@
     padding: 12px;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: fit-content;
+    width: 300px;
   }
+
+  .booking-box-text-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .price-text {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  .reserve-button {
+    background-color: #ff385c;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 300px;
+  }
+
+/* Reviews Section Container */
+.reviews-section {
+    max-width: 700px;
+    padding: 15px;
+  }
+  
+  /* Review Section Title */
+  .review-title {
+    font-size: 30px;
+    margin-bottom: 15px;
+    color: #222;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
+  }
+  
+  /* Post Review Button */
+  .post-review-button button {
+    background-color: #008489;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  .post-review-button button:hover {
+    background-color: #006f70;
+  }
+  
+  /* Single Review Tile */
+  .review-tile {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fafafa;
+  }
+  
+  /* Reviewer Name */
+  .reviewer-name {
+    font-weight: 600;
+    font-size: 25px;
+    color: #333;
+    margin-bottom: 3px;
+  }
+  
+  /* Review Date */
+  .review-date {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  /* Review Text */
+  .review-tile {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 10px;
+  }
+  
+  /* Star Ratings Container */
+  .review-stars {
+    color: #ffb400; /* Gold color for stars */
+    margin-bottom: 10px;
+  }
+  
+  /* Stars styling */
+  .star {
+    font-size: 300px;
+    color: #ccc;
+    margin-right: 3px;
+  }
+  
+  .star.filled {
+    color: #ffb400;
+  }
+  
+  

@@ -3,7 +3,7 @@ import { deleteReview } from '../../store/reviews';
 import { useModal } from '../../context/Modal';
 import './ConfirmDeleteReviewModal.css'; 
 
-function ConfirmDeleteReviewModal({ reviewId, onClose }) {
+function ConfirmDeleteReviewModal({ reviewId }) {
     const dispatch = useDispatch();
     const { closeModal } = useModal();
     
@@ -19,7 +19,7 @@ function ConfirmDeleteReviewModal({ reviewId, onClose }) {
             <p>Are you sure you want to delete this review?</p>
             <div className="modal-buttons">
                 <button onClick={handleConfirm} className="confirm">Yes (Delete Review)</button>
-                <button onClick={onClose} className="cancel">No (Keep Review)</button>
+                <button onClick={closeModal} className="cancel">No (Keep Review)</button>
             </div>
         </div>
     );

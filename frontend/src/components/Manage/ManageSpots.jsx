@@ -4,6 +4,7 @@ import { getCurrentUserSpots } from '../../store/spots';
 import DeleteSpotModal from './DeleteSpotModal';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
 import { Link } from 'react-router-dom';
+import './ManageSpots.css';
 
 function ManageSpots() {
   const dispatch = useDispatch();
@@ -21,28 +22,32 @@ function ManageSpots() {
   if (!userSpots.length) return <p>No spots found</p>;
   
   return (
+    
     <div>
-      <h1>Manage Your Spots</h1>
+      <h1 className='manage-spots-title'>Manage Your Spots</h1>
       <Link to="/spots/new">
-        <button>Create a New Spot</button>
+        <button className='manage-spot-button'>Create a New Spot</button>
       </Link>
-      <ul>
+
+      
+      <div className='spots-grid'>
         {userSpots.map(spot => (
-          <li key={spot.id}>
+          <div key={spot.id} className='spot-tile'>
             <h3>{spot.name}</h3>
-            <img src={spot.previewImage} alt={spot.name} style={{ width: '200px' }} />
+            <img src={spot.previewImage} alt={spot.name} className='spot-image' />
             <p>{spot.city}, {spot.state}</p>
             <p>${spot.price} / night</p>
             <Link to={`/spots/${spot.id}/edit`}>
-              <button>Update</button>
+              <button className='update-button'>Update</button>
             </Link> {/* Use the Modal Button here */}
             <OpenModalButton
                 buttonText="Delete" 
                 modalComponent={<DeleteSpotModal spotId={spot.id} />}
+                className='delete-button'
             />
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

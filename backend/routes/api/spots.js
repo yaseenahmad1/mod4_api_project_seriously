@@ -23,11 +23,11 @@ const validateSpotCreation = [
     .exists({ checkFalsy: true })
     .withMessage('Country is required.'),
     check('lat')
-    .exists({ checkFalsy: true })
+    .optional({ nullable: true })
     .isFloat({ min: -90, max: 90 })
     .withMessage('Latitude must be within -90 and 90'),
     check('lng')
-    .exists({ checkFalsy: true })
+    .optional({ nullable: true })
     .isFloat({ min: -180, max: 180 })
     .withMessage('Longitude must be within -180 and 180'),
     check('name')
@@ -37,9 +37,8 @@ const validateSpotCreation = [
     .withMessage('Name must be less than 50 characters'),
     check('description')
     .exists({ checkFalsy: true })
-    .withMessage('Description is required')
-    .isLength({ min: 10 })
-    .withMessage('Description must be a minimum of 10 characters.'),
+    .isLength({ min: 30 })
+    .withMessage('Description must be a minimum of 30 characters.'),
     check('price')
     .exists({ checkFalsy: true })
     .isFloat({ min: 1 })
@@ -145,7 +144,7 @@ router.get('/', async(req, res, next) => {
             if (reviewCount > 0) {
                 spot.avgRating = parseFloat((totalStars / reviewCount).toFixed(1)); // if there is a star for the review divide the star total over the review count and fix the decimal to 1 place
             } else {
-                spot.avgRating = null; // otherwise return the value as null 
+                spot.avgRating = null; // otherwise return the value as null
             }
             delete spot.Reviews; // Remove Reviews after processing avgRating
     
@@ -221,7 +220,9 @@ router.get(
     async (req, res, next) => {
     try { 
         const userId = req.user.id; // Get current user's ID - req.user is typically added by the requireAuth middleware after a user has logged in
+        console.log('Current userId:', userId);
         const spots = await Spot.findAll({
+            where: { ownerId: userId }, // this line filters by the current user 
             attributes : { 
                 include : [
                     [
@@ -242,7 +243,7 @@ router.get(
                 required: false // will allow other spot ids to come up in search 
               }
         ], 
-            group: ['Spot.id'] // this makes the average per spot 
+            group: ['Spot.id', 'SpotImages.id'] // this makes the average per spot 
         });
 
         //! We need to implement the same code that gives us avgRating and previewImage 
@@ -282,7 +283,7 @@ router.get('/:id', async (req, res, next) => {
                 attributes : { 
                     include : [
                         [
-                            sequelize.fn('COUNT', sequelize.col('review')),
+                            sequelize.fn('COUNT', sequelize.col('Reviews.id')),
                             "numReviews"
                         ], 
                         [
@@ -299,7 +300,6 @@ router.get('/:id', async (req, res, next) => {
                 },
                 {
                     model: SpotImage,
-                    where: { preview: true },
                     attributes: ['id', 'url', 'preview'],
                     required: false // will allow other spot ids to come up in search 
                 },
@@ -311,7 +311,7 @@ router.get('/:id', async (req, res, next) => {
                     as: 'Owner' // error message said we need to provide the alias that ownerId was referencing 
                 }
             ], 
-                group: ['Spot.id'] // this makes the average per spot 
+                group: ['Spot.id', 'SpotImages.id', 'Owner.id'] // this makes the average per spot 
             });
 
         if (!details) {           // if the spot id does not exist return an error message 
@@ -342,7 +342,7 @@ router.post('/',
                 state,
                 country,
                 lat,
-                lng,
+                lng, // checking to see why my create spot won't work 
                 name,
                 description,
                 price
@@ -480,7 +480,8 @@ router.get('/:spotId/reviews', async (req, res, next) => { // if we are just wan
                 model: ReviewImage, 
                 attributes: ['id', 'url']
             }
-        ]
+        ],
+        order: [['createdAt', 'DESC']] // adding ordering here to get newest reviews first
     }); 
 
     //format our response 
@@ -524,6 +525,13 @@ router.post('/:spotId/reviews', requireAuth, validReview, async (req, res, next)
         review,
         stars
     });
+
+    const fullReview = await Review.findByPk(newReview.id, {
+        include: {
+        model: User,
+        attributes: ['firstName'] // Only include firstName 
+        }
+    }); 
 
     return res.status(201).json(newReview);     // Return the newly created review 
    

@@ -1,12 +1,12 @@
 import { csrfFetch } from "./csrf"; // this brings in a special version of fetch that includes CSRFtokens to help protect your app from CSRF attacks
 
 const LOAD_SPOTS = 'spots/LOAD_SPOTS'; // this is for our landing page
-const LOAD_SPOT_DETAILS = 'spots/LOAD_SPOT_DETAILS'; // this is for our spot details 
+const LOAD_SPOT_DETAILS = 'spot/LOAD_SPOT_DETAILS'; // this is for our spot details 
 const ADD_SPOT = 'spots/ADD_SPOT'; // this is for our create a spot form 
 const UPLOAD_SPOTIMAGE = 'spots/UPLOAD_SPOTIMAGE'; // this is for our spot form to add an image or even for edit a spot
 const LOAD_USER_SPOTS = 'spots/LOAD_USER_SPOTS'; // action set for loading user's spots
 const REMOVE_SPOT = 'spots/REMOVE_SPOT'; // action set to delete a spot based on id
-const UPDATE_SPOT = ''
+const UPDATE_SPOT = 'spots/UPDATE_SPOT'; // action for our reducer 
 
 // Think of the payload (which is the data) as the response body 
 // Think of thunk action as just functions returning functions (closure) retrieving backend data
@@ -36,8 +36,8 @@ export const getCurrentUserSpots = () => async (dispatch) => { // creating an as
   
     if (res.ok) {   // if response is successful 
       const data = await res.json(); // we convert our data into json readable format and then dispatch our function 
-      dispatch(loadUserSpots(data.Spots)); 
-      return data.Spots;
+      dispatch(loadUserSpots(data)); 
+      return data;
     } else {
       const error = await res.json();
       throw error;
@@ -129,7 +129,7 @@ export const uploadSpotImage = (spotId, imageData) => async (dispatch) => {
   
     if (res.ok) {
       const updatedSpot = await res.json();
-      dispatch({ type: ADD_SPOT, spot: updatedSpot }); // reuse ADD_SPOT to update
+      dispatch({ type: UPDATE_SPOT, spot: updatedSpot }); // reuse ADD_SPOT to update
       return updatedSpot;
     } else {
       const error = await res.json();
@@ -143,7 +143,7 @@ export const uploadSpotImage = (spotId, imageData) => async (dispatch) => {
   });
 
   export const deleteSpot = (spotId) => async dispatch => {
-    const res = await fetch(`/api/spots/${spotId}`, {
+    const res = await csrfFetch(`/api/spots/${spotId}`, {
       method: 'DELETE'
     });
   
@@ -203,6 +203,16 @@ const spotsReducer = (state = initialState, action) => {
                 newState[spot.id] = spot;
             }); 
             return newState; 
+        }
+
+        case UPDATE_SPOT: {
+            return {
+                ...state, 
+                [action.spot.id]: {
+                    ...state[action.spot.id],
+                    ...action.spot
+                }
+            };
         }
 
         case REMOVE_SPOT: {

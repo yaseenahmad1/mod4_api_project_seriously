@@ -47,7 +47,7 @@ function PostReviewModal({ spotId, onClose }) {
       <h2>How was your stay?</h2>
 
       {/* Show list of errors if any */}
-      <ul>
+      <ul className='review-error-message'>
         {errors.map((err, idx) => <li key={idx}>{err}</li>)}
       </ul>
 

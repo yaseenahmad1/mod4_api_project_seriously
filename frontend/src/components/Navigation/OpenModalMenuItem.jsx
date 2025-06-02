@@ -2,7 +2,6 @@
 
 // import React from 'react';
 import { useModal } from '../../context/Modal';
-import ProfileButton from './ProfileButton';
 
 function OpenModalMenuItem({
   modalComponent, // component to render inside the modal

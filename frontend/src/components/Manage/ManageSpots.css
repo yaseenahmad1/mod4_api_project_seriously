@@ -1,0 +1,53 @@
+
+
+.manage-spots-title {
+    text-align: center;
+    font-weight: 500;
+    color: #222;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  .manage-spot-button {
+    display: flex;           /* So we can center with margin */
+    margin: 1rem auto 2rem;
+    background-color: #28a745;  /* nice green */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;     
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  
+  .update-button {
+    background-color: #007bff;  /* blue */
+    color: white;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .update-button:hover {
+    background-color: #0056b3; /* darker blue */
+  }
+  
+  .delete-button {
+    background-color: #dc3545;  /* bootstrap red */
+    color: white;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 0.5rem;
+  }
+  
+  .delete-button:hover {
+    background-color: #a71d2a; /* darker red */
+  }
+  

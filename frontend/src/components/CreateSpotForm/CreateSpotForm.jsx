@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux'; // help send information to reducer 
 import { useNavigate } from 'react-router-dom';
 import { createSpot, uploadSpotImage } from '../../store/spots';
+import './CreateSpotForm.css';
 
 const CreateSpotForm = () => {
   const dispatch = useDispatch();
@@ -47,7 +48,7 @@ const CreateSpotForm = () => {
     if (!stateName) newErrors.state = 'State is required';
     if (!country) newErrors.country = 'Country is required';
     if (!name) newErrors.name = 'Name is required';
-    if (!description) newErrors.description = 'Description is required';
+    if (!description || description.length < 30) newErrors.description = 'Description needs a minimum of 30 characters';
     if (!price || isNaN(price)) newErrors.price = 'Price must be a number';
 
     // lat and lng are optional, but if provided must be numbers
@@ -121,13 +122,14 @@ const CreateSpotForm = () => {
   };
 
   return (
-    <div className="create-spot-form">
-      <h2>Create a New Spot</h2>
+    <div className="form-page">
+      <h2 className='create-spot-text'>Create a New Spot</h2>
 
-      <form onSubmit={handleSubmit}>
-        <h4>Where&apos;s your place located?</h4>
-        <p>Guests will only get your exact address after they book a reservation.</p>
+      <form className='section-one'onSubmit={handleSubmit}>
+        <h2 className='section-titles'>Where&apos;s your place located?</h2>
+        <p className='paragraph-titles'>Guests will only get your exact address after they book a reservation.</p>
 
+        <label className='create-label'>Country</label>
         <input
           type="text"
           placeholder="Country"
@@ -135,6 +137,8 @@ const CreateSpotForm = () => {
           onChange={(e) => setCountry(e.target.value)}
         />
         {errors.country && <p className="error">{errors.country}</p>}
+
+        <label className='create-label'>Street Address</label>
         <input
           type="text"
           placeholder="Street Address"
@@ -142,6 +146,8 @@ const CreateSpotForm = () => {
           onChange={(e) => setAddress(e.target.value)}
         />
         {errors.address && <p className="error">{errors.address}</p>}
+
+        <label className='create-label'>City</label>
         <input
           type="text"
           placeholder="City"
@@ -149,6 +155,8 @@ const CreateSpotForm = () => {
           onChange={(e) => setCity(e.target.value)}
         />
         {errors.city && <p className="error">{errors.city}</p>}
+
+        <label className='create-label'>State</label>
         <input
           type="text"
           placeholder="State"
@@ -156,12 +164,16 @@ const CreateSpotForm = () => {
           onChange={(e) => setStateName(e.target.value)}
         />
         {errors.state && <p className="error">{errors.state}</p>}
+
+        <label className='create-label'>Latitude</label>
         <input
           type="number"
           placeholder="Latitude (optional)"
           value={lat}
           onChange={(e) => setLat(e.target.value)}
         />
+
+        <label className='create-label'>Longitude</label>
         <input
           type="number"
           placeholder="Longitude (optional)"
@@ -171,55 +183,59 @@ const CreateSpotForm = () => {
 
         <hr />
 
-        <h2>Describe your place to guests</h2>
-        <p>
+        <h2 className='section-titles'>Describe your place to guests</h2>
+        <p className='paragraph-titles'> 
           Mention the best features of your space, any special amenities like fast wifi or
           parking, and what you love about the neighborhood.
         </p>
+
         <textarea
           placeholder="Please write at least 30 characters"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          required
         />
+        {errors.description && <p className="error">{errors.description}</p>}
 
         <hr />
 
-        <h2>Create a title for your spot</h2>
-        <p>Catch guests&apos; attention with a spot title that highlights what makes your place special.</p>
+        <h2 className='section-titles'>Create a title for your spot</h2>
+        <p className='paragraph-titles'>Catch guests&apos; attention with a spot title that highlights what makes your place special.</p>
         <input
           type="text"
           placeholder="Name of your spot"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          required
         />
+        {errors.name && <p className="error">{errors.name}</p>}
 
         <hr />
 
-        <h2>Set a base price for your spot</h2>
-        <p>Competitive pricing can help your listing stand out and rank higher in search results.</p>
+        <h2 className='section-titles'>Set a base price for your spot</h2>
+        <p className='paragraph-titles'>Competitive pricing can help your listing stand out and rank higher in search results.</p>
+
+        <div className='price-input-container'>
         <label>$</label>
         <input
           type="number"
           placeholder="Price per night (USD)"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          required
         />
+        </div>
+        {errors.price && <p className="error">{errors.price}</p>}
 
         <hr />
 
-        <h2>Liven up your spot with photos</h2>
-        <p>Submit a link to at least one photo to publish your spot.</p>
+        <h2 className='section-titles'>Liven up your spot with photos</h2>
+        <p className='paragraph-titles'>Submit a link to at least one photo to publish your spot.</p>
 
         <input
           type="text"
           placeholder="Preview Image URL"
           value={previewImage}
           onChange={(e) => setPreviewImage(e.target.value)}
-          required
         />
+        {errors.previewImage && <p className="error">{errors.previewImage}</p>}
         <input
           type="text"
           placeholder="Image URL 2"
@@ -244,6 +260,8 @@ const CreateSpotForm = () => {
           value={image5}
           onChange={(e) => setImage5(e.target.value)}
         />
+
+        <hr></hr>
 
         <button type="submit">Create Spot</button>
       </form>
