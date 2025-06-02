@@ -36,7 +36,7 @@ function SpotsList() { // function name defines our React component named 'Spots
                 className="spot-tile"
             >
                 <img 
-                    src={spot.previewImage !== 'No preview image available' ? spot.previewImage : '/default-image.jpg'}
+                    src={spot.previewImage}
                     alt={spot.name}
                     className="spot-image"
                 />
