@@ -220,7 +220,6 @@ router.get(
     async (req, res, next) => {
     try { 
         const userId = req.user.id; // Get current user's ID - req.user is typically added by the requireAuth middleware after a user has logged in
-        console.log('Current userId:', userId);
         const spots = await Spot.findAll({
             where: { ownerId: userId }, // this line filters by the current user 
             attributes : { 
