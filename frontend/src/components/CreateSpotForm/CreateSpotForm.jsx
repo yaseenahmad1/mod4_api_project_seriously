@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux'; // help send information to reducer 
 import { useNavigate } from 'react-router-dom';
-import { createSpot, uploadSpotImage } from '../../store/spots';
+import { createSpot, fetchSpots, uploadSpotImage } from '../../store/spots';
 import './CreateSpotForm.css';
 
 const CreateSpotForm = () => {
@@ -114,7 +114,11 @@ const CreateSpotForm = () => {
         );
       }
 
+      // i do not refresh my spots data and reflect it on my landing page i need to refresh it so my dispatch knows to grab newly created spots
+      await dispatch(fetchSpots()); 
+      
       navigate(`/spots/${newSpot.id}`);
+      
     } catch (err) {
       if (err.errors) setErrors(err.errors);
       else console.error('Unexpected error:', err);

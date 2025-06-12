@@ -34,6 +34,8 @@ function SpotsList() { // function name defines our React component named 'Spots
                 to={`spots/${spot.id}`} // This will make our tiles clickable 
                 key={spot.id}
                 className="spot-tile"
+                // must add tooltip so that spot name appears 
+                title={spot.name}
             >
                 <img 
                     src={spot.previewImage}

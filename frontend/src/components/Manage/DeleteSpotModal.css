@@ -1,0 +1,55 @@
+.delete-modal {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: white;
+    border-radius: 12px;
+    padding: 24px;
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .delete-modal h2 {
+    margin-bottom: 16px;
+    font-size: 22px;
+  }
+  
+  .delete-modal p {
+    margin-bottom: 24px;
+    font-size: 16px;
+    color: #444;
+  }
+  
+  .delete-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .confirm-delete,
+  .cancel-delete {
+    padding: 10px 16px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .confirm-delete {
+    background-color: #ff5a5f; /* Airbnb red */
+    color: white;
+  }
+  
+  .confirm-delete:hover {
+    background-color: #e04848;
+  }
+  
+  .cancel-delete {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+  
+  .cancel-delete:hover {
+    background-color: #c6ccc7;
+  }
+  

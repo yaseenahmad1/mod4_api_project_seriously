@@ -138,8 +138,8 @@ function UpdateSpot() {
         name,
         description,
         price,
-        lat,
-        lng,
+        lat: lat ? parseFloat(lat) : null, // turned this from simply lat into a conditonal that if we have lat parse it as a decimal or leave it as null
+        lng: lng ? parseFloat(lng) : null, // same principle applies here 
         previewImage,
         image2,
         image3,

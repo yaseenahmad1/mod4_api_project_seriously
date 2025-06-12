@@ -125,7 +125,7 @@ function SpotDetails() {
       {/*  Reviews Section  */}
       <div className="reviews-section">
         <h3 className="review-title">
-          ★ {avgStarRating} · {numReviews} review{numReviews !== 1 && "s"}
+          ★ {avgStarRating} · {numReviews} review{numReviews === 1 ? "" : "s"} {/* if the number of reviews is 1 go with first option which is an empty string (aka no s) if it is any number other 1 then add an s*/}
         </h3>
 
         {/* Show Post Review button only if: user is logged in, NOT the owner, and hasn’t reviewed */}
