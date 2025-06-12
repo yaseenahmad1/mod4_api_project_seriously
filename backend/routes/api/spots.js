@@ -23,11 +23,11 @@ const validateSpotCreation = [
     .exists({ checkFalsy: true })
     .withMessage('Country is required.'),
     check('lat')
-    .optional({ nullable: true })
+    .optional({ nullable: true }) // this change should allow the field to be null/optional 
     .isFloat({ min: -90, max: 90 })
     .withMessage('Latitude must be within -90 and 90'),
     check('lng')
-    .optional({ nullable: true })
+    .optional({ nullable: true }) // this change should do the same 
     .isFloat({ min: -180, max: 180 })
     .withMessage('Longitude must be within -180 and 180'),
     check('name')
@@ -106,14 +106,40 @@ router.get('/', async(req, res, next) => {
         });
     }
 
+    // creating a custom where clause object that better handles our search filters 
+    // implemented the bottom code and commented out the original where clause because the spots with no lng/lat were not appearing on the landing page 
+    const where = {
+        ...(minLat !== undefined || maxLat !== undefined) && { // if min or max lat is defined include a "lat" key in our where object 
+          lat: {
+            ...(minLat !== undefined && { [Op.gte]: minLat }), // if min lat is provided set a gte for that lat 
+            ...(maxLat !== undefined && { [Op.lte]: maxLat }), // and a less than for the maxlat so that we stay in the boundary 
+          }
+        },
+        ...(minLng !== undefined || maxLng !== undefined) && { // same for lng 
+          lng: {
+            ...(minLng !== undefined && { [Op.gte]: minLng }), // we use the spread operator for the properties to be included in the object 
+            ...(maxLng !== undefined && { [Op.lte]: maxLng }),
+          }
+        },
+        ...(minPrice !== undefined || maxPrice !== undefined) && { // same for price 
+          price: {
+            ...(minPrice !== undefined && { [Op.gte]: minPrice }),
+            ...(maxPrice !== undefined && { [Op.lte]: maxPrice }),
+          }
+        }
+      };
+      
+      // this reworking of our code is in hopes that when we "findAll" spots we will see all spots regardless if the "optional" lng/lat fields have values in them or not 
+
         // Get all spots with the optional filters, include the images and reviews for avgRating and previewImage 
         const spots = await Spot.findAll({
-            where: {
-                lat: { [Op.between]: [minLat || -90, maxLat || 90] }, // filter latitude between minLat and maxLat 
-                lng: { [Op.between]: [minLng || -180, maxLng || 180] }, // same for longitude 
-                price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] } // same for price
-            },
+            // where: {
+            //      lat: { [Op.between]: [minLat || -90, maxLat || 90] }, // filter latitude between minLat and maxLat 
+            //      lng: { [Op.between]: [minLng || -180, maxLng || 180] }, // same for longitude 
+            //      price: { [Op.between]: [minPrice || 0, maxPrice || Number.MAX_SAFE_INTEGER] } // same for price
+            // },
             // apply pagination: limtiing how many results per page 
+            where,
             limit: size,
             offset: (page - 1) * size, // calculate offset based on the page number (standard equation)
             include: [ // include the required attributes from both models for the average star calculation and preview image 
@@ -334,14 +360,20 @@ router.post('/',
             const { address, city, state, country, lat, lng, name, description, price } = req.body; // destructuring our columns into an object to store into our request body
             const ownerId = req.user ? req.user.id : null;    // Authenticated user extracted from our current user logged in store in variable
 
+            // trying to fix my change of allowNull: true for lng/lat which is causing errors in my webpage
+            // In my new spot creation i want to ensure that lat and lng is filtered to accept null values 
+            // so i will create two new variables for lat and lng specifically 
+            const filteredLat = lat === undefined || lat === '' ? null : parseFloat(lat); // if lat is undefined or an empty string we give it a null field , if it is a string we parse it into a float 
+            const filteredLng = lng === undefined || lng === '' ? null : parseFloat(lng); 
+
             const newSpot = await Spot.create({ 
                 ownerId, 
                 address,
                 city,
                 state,
                 country,
-                lat,
-                lng, // checking to see why my create spot won't work 
+                lat: filteredLat, 
+                lng: filteredLng, // checking to see why my create spot won't work 
                 name,
                 description,
                 price
