@@ -34,9 +34,9 @@ function SpotsList() { // function name defines our React component named 'Spots
                 to={`spots/${spot.id}`} // This will make our tiles clickable 
                 key={spot.id}
                 className="spot-tile"
-                // must add tooltip so that spot name appears 
-                title={spot.name}
             >
+            <div // must add tooltip so that spot name appears 
+                title={spot.name}>
                 <img 
                     src={spot.previewImage}
                     alt={spot.name}
@@ -49,6 +49,7 @@ function SpotsList() { // function name defines our React component named 'Spots
                         <FaStar />
                         {spot.avgRating ? Number(spot.avgRating).toFixed(1) : 'New'}</div> { /* The ?? is what is called a 'nullish coalescer' which returns the right-hand value only if the left-hand valie is null or undefined */}
                 </div> 
+                </div>
             </Link>
             ))}
         </div>
