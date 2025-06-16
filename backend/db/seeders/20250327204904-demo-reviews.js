@@ -14,14 +14,6 @@ module.exports = {
   // Spot 1: Beach House Resort
   {
     spotId: 1,
-    userId: 1,
-    review: "Absolutely stunning location with a perfect beach view. The house was clean, cozy, and had everything we needed for a relaxing stay.",
-    stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    spotId: 1,
     userId: 2,
     review: "The beach access was great, but the area was more crowded than expected. Still a solid place to stay for a short getaway.",
     stars: 4,
@@ -37,22 +29,6 @@ module.exports = {
     updatedAt: new Date()
   },
   // Spot 2: Desert Oasis
-  {
-    spotId: 2,
-    userId: 2,
-    review: "Loved the pool and desert views—felt like a true escape. Would definitely come back for a longer stay.",
-    stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    spotId: 2,
-    userId: 2,
-    review: "Comfortable spot, but it gets really hot during the day. A little pricey for the amenities provided.",
-    stars: 4,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
   {
     spotId: 2,
     userId: 3,
@@ -78,23 +54,7 @@ module.exports = {
     createdAt: new Date(),
     updatedAt: new Date()
   },
-  {
-    spotId: 3,
-    userId: 3,
-    review: "Nice spot for a weekend getaway. It’s a bit rustic, so be prepared for that kind of experience.",
-    stars: 3,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
   // Spot 4: Oceanfront Penthouse
-  {
-    spotId: 4,
-    userId: 1,
-    review: "Incredible views and high-end finishes. This place screams luxury and relaxation.",
-    stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
   {
     spotId: 4,
     userId: 2,
@@ -117,14 +77,6 @@ module.exports = {
     userId: 1,
     review: "Super modern and perfectly located near the best food and breweries. Loved every minute.",
     stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    spotId: 5,
-    userId: 2,
-    review: "Trendy and comfortable, but street parking was a bit of a hassle. Overall great vibe.",
-    stars: 4,
     createdAt: new Date(),
     updatedAt: new Date()
   },
@@ -153,23 +105,7 @@ module.exports = {
     createdAt: new Date(),
     updatedAt: new Date()
   },
-  {
-    spotId: 6,
-    userId: 3,
-    review: "Cabin was cozy, but we ran into a few issues with the hot water. Otherwise, amazing setting.",
-    stars: 3,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
   // Spot 7: Downtown Luxe Loft
-  {
-    spotId: 7,
-    userId: 1,
-    review: "Loved the floor-to-ceiling windows and urban design. Perfect spot for a stylish stay.",
-    stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
   {
     spotId: 7,
     userId: 2,
@@ -192,14 +128,6 @@ module.exports = {
     userId: 1,
     review: "Absolutely gorgeous villa surrounded by vineyards. The complimentary tastings were a bonus.",
     stars: 5,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    spotId: 8,
-    userId: 2,
-    review: "Incredible wine country experience. The patio views were unforgettable.",
-    stars: 4,
     createdAt: new Date(),
     updatedAt: new Date()
   },
