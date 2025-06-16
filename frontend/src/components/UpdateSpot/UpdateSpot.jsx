@@ -99,9 +99,9 @@ function UpdateSpot() {
     if (!description) newErrors.description = 'Description needs a minimum of 30 characters';
     if (!price || isNaN(price)) newErrors.price = 'Price must be a number';
 
-    // lat and lng are optional, but if provided must be numbers
-    if (lat !== "" && lat !== null && isNaN(Number(lat))) newErrors.lat = 'Latitude must be a number';
-    if (lng !== "" && lng !== null && isNaN(Number(lng))) newErrors.lng = 'Longitude must be a number';
+    // // lat and lng are optional, but if provided must be numbers
+    // if (lat !== "" && lat !== null && isNaN(Number(lat))) newErrors.lat = 'Latitude must be a number';
+    // if (lng !== "" && lng !== null && isNaN(Number(lng))) newErrors.lng = 'Longitude must be a number';
 
 
     if (!previewImage) {
@@ -139,8 +139,8 @@ function UpdateSpot() {
         name,
         description,
         price,
-        lat: lat ? parseFloat(lat) : null, // turned this from simply lat into a conditonal that if we have lat parse it as a decimal or leave it as null
-        lng: lng ? parseFloat(lng) : null, // same principle applies here 
+        // lat: lat ? parseFloat(lat) : null, // turned this from simply lat into a conditonal that if we have lat parse it as a decimal or leave it as null
+        // lng: lng ? parseFloat(lng) : null, // same principle applies here 
         previewImage,
         image2,
         image3,
