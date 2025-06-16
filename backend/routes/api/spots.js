@@ -564,7 +564,7 @@ router.post('/:spotId/reviews', requireAuth, validReview, async (req, res, next)
         }
     }); 
 
-    return res.status(201).json(newReview);     // Return the newly created review 
+    return res.status(201).json(fullReview);     // Return the newly created review 
    
 
     } catch (error) {
