@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 // Importing our thunk that will POST a new review to the backend
 import { postReview } from '../../store/reviews';
+// import thunk name
+import { fetchSpotDetails } from '../../store/spots';
 // import our useModal to access the closemodal feature 
 import { useModal } from '../../context/Modal';
 import './PostReviewModal.css';
@@ -34,7 +36,9 @@ function PostReviewModal({ spotId, onClose }) {
 
     try {
       // Dispatch the thunk to post the review, passing spotId and the form data
-      await dispatch(postReview(spotId, { review, stars })).then(closeModal); 
+      await dispatch(postReview(spotId, { review, stars }));
+      await dispatch(fetchSpotDetails(spotId)); // adding this thunk to refresh the spot data after posting 
+      closeModal(); // Closes only after both dispatches complete to ensure no refresh needed 
     } catch (res) {
       // If server responds with errors, update the errors array in state
       if (res.errors) setErrors(res.errors);
