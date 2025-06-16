@@ -100,8 +100,8 @@ function UpdateSpot() {
     if (!price || isNaN(price)) newErrors.price = 'Price must be a number';
 
     // lat and lng are optional, but if provided must be numbers
-    if (lat !== "" && lat !== null && isNaN(lat)) newErrors.lat = 'Latitude must be a number';
-    if (lng !== "" && lng !== null && isNaN(lng)) newErrors.lng = 'Longitude must be a number';
+    if (lat !== "" && lat !== null && isNaN(Number(lat))) newErrors.lat = 'Latitude must be a number';
+    if (lng !== "" && lng !== null && isNaN(Number(lng))) newErrors.lng = 'Longitude must be a number';
 
 
     if (!previewImage) {
