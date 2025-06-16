@@ -109,67 +109,7 @@ module.exports = {
     url: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg', // kitchen
     createdAt: new Date(),
     updatedAt: new Date()
-  },
-
-  // Spot 6 Reviews (reviewId 16 to 18)
-  {
-    reviewId: 16,
-    url: 'https://images.pexels.com/photos/158607/cabin-in-the-forest-158607.jpeg', // lake view cabin
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 17,
-    url: 'https://images.pexels.com/photos/753626/pexels-photo-753626.jpeg', // peaceful lake view
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 18,
-    url: 'https://images.pexels.com/photos/175737/pexels-photo-175737.jpeg', // rustic cabin interior
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-
-  // Spot 7 Reviews (reviewId 19 to 21)
-  {
-    reviewId: 19,
-    url: 'https://images.pexels.com/photos/244206/pexels-photo-244206.jpeg', // city view from loft
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 20,
-    url: 'https://images.pexels.com/photos/3184335/pexels-photo-3184335.jpeg', // city nightlife
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 21,
-    url: 'https://images.pexels.com/photos/374710/pexels-photo-374710.jpeg', // check-in door
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-
-  // Spot 8 Reviews (reviewId 22 to 24)
-  {
-    reviewId: 22,
-    url: 'https://images.pexels.com/photos/256381/pexels-photo-256381.jpeg', // vineyard villa
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 23,
-    url: 'https://images.pexels.com/photos/1309643/pexels-photo-1309643.jpeg', // wine country patio
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    reviewId: 24,
-    url: 'https://images.pexels.com/photos/2310649/pexels-photo-2310649.jpeg', // vineyard walk
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
+  }
     ])
   },
 
