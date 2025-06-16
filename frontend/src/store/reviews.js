@@ -46,10 +46,13 @@ export const postReview = (spotId, reviewData) => async (dispatch) => { // thunk
       body: JSON.stringify(reviewData)
     });
   
+//! I checked my backend api route that implements the POST a review function and realize that I did not pair the variables properly 
+//! I had const = newReview below but my backend api route has fullReview defined as the variable that returns the firstName 
+// And so I will attempt to change this and test my localhost to see if the posting of a review generates the first name without refreshing the page 
     if (res.ok) {               // if the response is successful... 
-      const newReview = await res.json();   // we parse the response as JSON 
-      dispatch(addReview(newReview)); // implement the addReview action 
-      return newReview;         // and return the new review so our componenet can react to it (pun intended)
+      const fullReview = await res.json();   // we parse the response as JSON 
+      dispatch(addReview(fullReview)); // implement the addReview action 
+      return fullReview;         // and return the new review so our componenet can react to it (pun intended)
     } else {
       const error = await res.json();   // if we encounter an error, our componenet will be able to ctach and show error message 
       throw error;
