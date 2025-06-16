@@ -32,11 +32,15 @@ function ManageSpots() {
       
       <div className='spots-grid'>
         {userSpots.map(spot => (
-          <div key={spot.id} className='spot-tile'>
+          <div key={spot.id} className='spot-wrapper'>
+            <Link to={`/spots/${spot.id}`} className='spot-link'>
+            <div className='spot-tile'>
             <h3>{spot.name}</h3>
             <img src={spot.previewImage} alt={spot.name} className='spot-image' />
             <p>{spot.city}, {spot.state}</p>
             <p>${spot.price} / night</p>
+            </div>
+            </Link>
             <Link to={`/spots/${spot.id}/edit`}>
               <button className='update-button'>Update</button>
             </Link> {/* Use the Modal Button here */}
